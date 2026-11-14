@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>拯救英伟达 · 可玩原型 v0.1（架空推演）</title>
-<meta name="description" content="《拯救英伟达》可玩原型：架空历史同人卡牌游戏，非真实新闻，与 NVIDIA 及现实人物、事件无关。">
+<title>拯救英伟达 · 架空历史卡牌游戏</title>
+<meta name="description" content="《拯救英伟达》是一款架空历史同人卡牌游戏，非真实新闻，与 NVIDIA 及现实人物、事件无关。">
 <meta name="robots" content="noindex, nofollow">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#080A09">
@@ -31,40 +31,34 @@
   <!-- ================= TITLE ================= -->
   <section class="screen screen-title is-active" id="screen-title">
     <header class="proto-top">
-      <a class="proto-brand" href="../index.html" title="回到网页视觉方案">
-        <span class="mark"></span>拯救英伟达 <small>PROTOTYPE 01</small>
-      </a>
+      <div class="proto-brand"><span class="mark"></span>拯救英伟达 <small>v1.0</small></div>
       <nav class="proto-nav">
-        <a href="../index.html">视觉方案</a>
-        <a href="assets.html">美术坑位</a>
-        <span class="proto-ver">v0.1 · PLAYABLE</span>
+        <span class="proto-ver">v1.0 · ALT-HISTORY</span>
       </nav>
     </header>
 
     <div class="title-grid">
       <div class="title-copy">
-        <span class="kicker">REIGNS-LIKE · ALT-HISTORY · PLAYABLE PROTOTYPE</span>
+        <span class="kicker">REIGNS-LIKE · ALT-HISTORY · CARD GAME</span>
         <h1>拯救英伟达<em>。</em></h1>
         <p class="title-lead">黄仁勋走了，皮衣还挂在椅背上。你是董事会找来的临时 CEO——四条线，任何一条先断，你的任期就结束。</p>
         <div class="title-actions">
           <button class="btn btn--primary" id="start-btn">开始任期的第一天 →</button>
-          <a class="btn btn--ghost" href="assets.html">查看美术坑位</a>
         </div>
         <div class="title-meta">
-          <span>四条线</span><span>无胜利条件</span><span>单局 2–5 分钟</span><span>原型 v0.1</span><span class="meta-fiction">架空推演 · 非真实新闻</span>
+          <span>四条线</span><span>无胜利条件</span><span>单局 2–5 分钟</span><span>完整版 v1.0</span><span class="meta-fiction">架空推演 · 非真实新闻</span>
         </div>
         <details class="howto">
-          <summary>怎么玩 / 这次原型包含什么</summary>
+          <summary>怎么玩 / 内容说明</summary>
           <ul>
             <li>按住卡片向左或向右拖，松手即选择；也可用键盘 <b>← / →</b>。</li>
             <li>四条线触 0 或 100 都会结束任期；底牌可以救一次。</li>
             <li>1 张卡＝1 周，13 张卡＝1 个财季。没有胜利，只有你撑了多少天。</li>
-            <li>本次包含：7 位角色 × 3 种表情 + 黄仁勋 3 种素材、37 张决策卡、8 个标准结局 + 1 个隐藏结局、4 张底牌。</li>
-            <li>美术素材已接入；按 <b>A</b> 显示槽位，替换说明见 <a href="assets.html">美术坑位</a>。</li>
+            <li>内容：7 位角色 × 3 种表情 + 黄仁勋 3 种素材、37 张决策卡、8 个标准结局 + 1 个隐藏结局、4 张底牌。</li>
           </ul>
         </details>
         <p class="title-best">最长任期：<b id="title-best">—</b></p>
-        <p class="title-disclaimer">非官方、非商业的架空推演原型；人物为虚构化演绎，不使用官方 Logo 或新闻图片。本作与现实中的人物、公司、事件及任何真实公告无关，不构成新闻或投资建议。<br>NVIDIA 及相关名称为其权利人所有。</p>
+        <p class="title-disclaimer">非官方、非商业的架空历史作品；人物为虚构化演绎，不使用官方 Logo 或新闻图片。本作与现实中的人物、公司、事件及任何真实公告无关，不构成新闻或投资建议。<br>NVIDIA 及相关名称为其权利人所有。</p>
       </div>
 
       <div class="title-art" aria-hidden="true">
@@ -87,7 +81,7 @@
           <p class="gcard-quote">“董事会找到你，给了你九十天。九十天后，他们会再投一次票。”</p>
           <div class="gcard-choices"><span>← 我需要时间</span><span>我准备好了 →</span></div>
         </article>
-        <div class="title-stamp">PROTOTYPE<br>01</div>
+        <div class="title-stamp">v1.0<br>ALT-HISTORY</div>
       </div>
     </div>
   </section>
@@ -238,7 +232,7 @@
   <!-- ================= GAME ================= -->
   <section class="screen screen-game" id="screen-game">
     <header class="game-top">
-      <div class="proto-brand"><span class="mark"></span>拯救英伟达 <small>PROTOTYPE 01 · SIM</small></div>
+      <div class="proto-brand"><span class="mark"></span>拯救英伟达 <small>v1.0 · SIM</small></div>
       <div class="game-clock">
         <span class="clock-day" id="day-label">DAY 001</span>
         <span class="clock-sep"></span>
@@ -247,7 +241,7 @@
       </div>
       <div class="game-tools">
         <button class="tool-btn" id="guide-btn" title="玩法说明">玩法 ?</button>
-        <button class="tool-btn" id="asset-toggle" title="显示/隐藏美术槽位">坑位 A</button>
+        <button class="tool-btn" id="asset-toggle" title="显示/隐藏素材槽位" hidden>槽位 A</button>
         <button class="tool-btn" id="restart-btn" title="重开一局">重开 R</button>
         <button class="tool-btn" id="home-btn" title="回到标题">标题 Esc</button>
       </div>
@@ -310,7 +304,7 @@
           <button class="dash-btn" id="dash-left">← 左滑</button>
           <button class="dash-btn" id="dash-right">右滑 →</button>
         </div>
-        <div class="dash-keys"><kbd>←</kbd><kbd>→</kbd> 选择 <kbd>R</kbd> 重开 <kbd>A</kbd> 坑位 <kbd>D</kbd> 调试</div>
+        <div class="dash-keys"><kbd>←</kbd><kbd>→</kbd> 选择 <kbd>R</kbd> 重开 <kbd>D</kbd> 调试</div>
         <div class="debug-line">CARD <span id="debug-card">—</span></div>
       </aside>
     </div>

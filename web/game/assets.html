@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="dark">
-<title>美术坑位 · 拯救英伟达原型 v0.1</title>
+<title>美术资源 · 拯救英伟达</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23080A09'/%3E%3Crect x='6' y='6' width='20' height='20' rx='4' fill='none' stroke='%2376B900' stroke-width='2'/%3E%3Cpath d='M16 10v12M10 16h12' stroke='%23A6E04C' stroke-width='2'/%3E%3C/svg%3E">
 <meta name="robots" content="noindex, nofollow">
 <link rel="stylesheet" href="styles.css">
@@ -92,19 +92,18 @@
 </head>
 <body>
 <div class="proto-top">
-  <a class="proto-brand" href="index.html"><span class="mark"></span>拯救英伟达 <small>ASSET SLOTS</small></a>
+  <a class="proto-brand" href="index.html"><span class="mark"></span>拯救英伟达 <small>ASSETS</small></a>
   <nav class="proto-nav">
-    <a href="index.html">试玩原型</a>
-    <a href="../index.html">视觉方案</a>
-    <span class="proto-ver">29 SLOTS · v0.1</span>
+    <a href="index.html">返回游戏</a>
+    <span class="proto-ver">29 SLOTS · v1.0</span>
   </nav>
 </div>
 
 <main class="asset-page">
   <header class="asset-hero">
     <span class="kicker">ART SLOTS · REPLACEABLE ASSETS</span>
-    <h1>美术坑位<em>。</em></h1>
-    <p>这里是原型需要的全部素材槽位。每个槽位是一张<b>固定画布</b>；当前已接入正式美术并生成 WebP。<b>人物每人 3 个表情状态</b>，黄仁勋不出场，只有皮衣、信件、GTC 剪影三种素材。替换时把同名 PNG 放进对应目录，再运行 <code>assets/tools/optimize_assets.py</code> 生成 WebP。</p>
+    <h1>美术资源<em>。</em></h1>
+    <p>这里是游戏需要的全部素材槽位。每个槽位是一张<b>固定画布</b>；当前已接入正式美术并生成 WebP。<b>人物每人 3 个表情状态</b>，黄仁勋不出场，只有皮衣、信件、GTC 剪影三种素材。替换时把同名 PNG 放进对应目录，再运行 <code>assets/tools/optimize_assets.py</code> 生成 WebP。</p>
     <div class="asset-stats">
       <span>29 个槽位</span>
       <span>角色 <b>24</b>（7 人 × 3 表情 + 黄仁勋 3 素材）</span>
@@ -140,7 +139,7 @@
       <li>按画布尺寸作画：角色 1200×840、场景 1600×900、证据 1200×800、报纸 800×600；主体留在安全区内。</li>
       <li>导出 <b>PNG（源文件，透明或带底都可）</b>，命名为 <code>jones-neutral.png</code> 这类同名文件，放到 <code>assets/characters/</code> 对应目录。</li>
       <li>运行 <code>python assets/tools/optimize_assets.py</code> 生成同名 WebP；刷新页面。加载器按 <code>webp → png → jpg → jpeg → svg</code> 查找，WebP 会被优先加载。</li>
-      <li>要换表情，就替换 <code>-neutral / -pressured / -pleased</code> 三张；原型会在选择后自动切到反应表情。</li>
+      <li>要换表情，就替换 <code>-neutral / -pressured / -pleased</code> 三张；游戏会在选择后自动切到反应表情。</li>
     </ol>
 
     <table class="spec-table">
@@ -158,8 +157,8 @@
   </section>
 
   <div class="footer-note">
-    <span>拯救英伟达 · 原型 v0.1 · 美术坑位清单</span>
-    <span><a href="index.html">← 回去试玩</a> · <a href="../index.html">视觉方案</a></span>
+    <span>拯救英伟达 · v1.0 · 美术资源</span>
+    <span><a href="index.html">← 返回游戏</a></span>
   </div>
 </main>
 

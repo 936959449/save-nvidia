@@ -1,6 +1,6 @@
 # 美术槽位说明（asset slots）
 
-本目录是原型全部已接入美术与可替换槽位的落点。每个槽位是一张固定画布；替换时放入同名 PNG，再运行优化脚本生成 WebP。
+本目录是游戏全部已接入美术与可替换槽位的落点。每个槽位是一张固定画布；替换时放入同名 PNG，再运行优化脚本生成 WebP。
 
 ## 画布规格
 
@@ -46,14 +46,14 @@ assets/news/photo.png / .webp
 ## 清单文件
 
 - `manifest.json`：可读的槽位清单（工具用）。
-- `manifest.js`：同一份数据，挂到 `window.ART_SLOTS`，原型与 `assets.html` 直接引用（file:// 下无需 fetch）。
+- `manifest.js`：同一份数据，挂到 `window.ART_SLOTS`，游戏与 `assets.html` 直接引用（file:// 下无需 fetch）。
 - `tools/generate_placeholders.py`：重新生成全部 29 张占位 SVG 与两份 manifest。
 - `tools/optimize_assets.py`：PNG → WebP 压缩脚本（默认质量 88）。
 
 ## 替换自检
 
 1. 打开 `assets.html`，确认目标槽位显示“已替换”（右上统计 `已替换 n / 29`）。
-2. 打开原型，按 `A` 进入坑位模式，确认虚线框与标签对齐、主体没有出安全区。
+2. 打开游戏，按 `A` 检查槽位框与标签对齐，确认主体没有出安全区。
 3. 连选几次，确认同一角色在平静/施压/满意之间切换时构图不跳。
 4. 部署前确认页面请求的是 `.webp` 而不是 1–2 MB 的单张 `.png`。
 5. PNG 默认不提交（根目录 `.gitignore`）；克隆后只有 WebP + 占位 SVG，替换素材需本地保留 PNG 源。

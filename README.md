@@ -1,127 +1,103 @@
 # 拯救英伟达 · Save NVIDIA
 
-一款 **Reigns-like 架空历史同人卡牌游戏**的原型：黄仁勋“卸任”后，你成为董事会找来的临时 CEO，在资本、工程、客户、政界的四条线之间做 90 天试用期内的取舍。
+**v1.0** · 一款 Reigns-like 架空历史同人卡牌游戏。
 
-> **这不是新闻。** 项目是虚构推演，与 NVIDIA Corporation 及任何现实人物、公司、事件无关，不构成新闻或投资建议。NVIDIA 及相关名称为其权利人所有。详见下方「合规与边界」。
+黄仁勋“卸任”后，你成为董事会找来的临时 CEO，在资本、工程、客户、政界的四条线之间做 90 天试用期内的取舍。
 
-## 入口
+> **这不是新闻。** 本作是虚构推演，与 NVIDIA Corporation 及任何现实人物、公司、事件无关，不构成新闻或投资建议。NVIDIA 及相关名称为其权利人所有。
 
-- 游戏原型（v0.1）：[`web/prototype/index.html`](web/prototype/index.html)
-- 网页视觉方案（v0.2）：[`web/index.html`](web/index.html)
-- 美术坑位清单：[`web/prototype/assets.html`](web/prototype/assets.html)
-- 玩法设计文档：[`拯救英伟达_玩法设计文档.md`](拯救英伟达_玩法设计文档.md)
+## 在线游玩
 
-本地直接双击 [`index.html`](index.html) 开始，无需构建、无需启动服务。
+- **游戏**：https://936959449.github.io/save-nvidia/
+- **GitHub**：https://github.com/936959449/save-nvidia
+
+首页只有一个「开始任期的第一天」按钮；点击后进入开场演出，首次游玩会看到「入职须知」。
+
+## 玩法
+
+- **操作**：按住卡面左右拖动，松手选择；桌面端也支持 `←` / `→` 与右侧按钮。
+- **目标**：撑到第 90 天董事会表决——第一个里程碑；之后还能继续刷新任期。
+- **四条线**：资本 / 工程 / 客户 / 政界。任一归零或爆表，任期立刻结束。
+- **选择有代价**：每个选择都会推动参数，通常一边涨、一边跌，没有绝对正确的选项。
+- **底牌**：现金储备、CUDA 生态、长期合约、政府订单，各能在对应线归零时救一次。
+- **结局**：8 个标准结局 + 隐藏结局「他回来了」。
+- **新手引导**：首次进入的「入职须知」、首张卡操作提示、第一次选择后的四条线提示；游戏内右上角「玩法 ?」可随时重看。
 
 ## 目录结构
 
 ```
-index.html                     GitHub Pages 入口 / 免责声明页
-robots.txt                     默认禁止搜索引擎索引（避免被误读为新闻）
+index.html                     GitHub Pages 入口 / 免责声明
+robots.txt                     当前默认禁止搜索引擎索引
 .nojekyll                      GitHub Pages 关闭 Jekyll
 web/
-  index.html                   网页视觉方案
+  index.html                   网页视觉设定（内部参考）
   styles.css / app.js
-  prototype/
-    index.html                 可玩原型
+  game/
+    index.html                 游戏
     styles.css / game.js / data.js / asset-loader.js
-    assets.html                美术坑位清单
+    assets.html                美术资源清单（内部）
     assets/
-      manifest.json / .js      槽位清单
-      characters|scenes|evidence|news/   29 个槽位的 WebP（页面实际加载）/ SVG 占位 / PNG 本地源
+      manifest.json / .js      资源清单
+      characters|scenes|evidence|news/   29 个槽位的 WebP
       tools/optimize_assets.py PNG → WebP 压缩脚本
-      tools/generate_placeholders.py       生成占位图与清单
-    preview-*.png              预览图（文档用）
 拯救英伟达_玩法设计文档.md
-research/                      新闻与机制调研
+research/
 ```
 
 ## 本地运行
 
-- 直接双击根目录 `index.html`，或：
-  - `cd web/prototype && python -m http.server 8000`，访问 `http://localhost:8000/`
-- 无后端、无数据库；进度只写入浏览器 `localStorage`（最佳任期、新手引导是否看过）。
+直接双击根目录 `index.html`，或：
 
-## 部署到 GitHub Pages
+```bash
+cd web/game
+python -m http.server 8000
+```
 
-### 推荐：整仓库根目录部署
+访问 `http://localhost:8000/`。无后端、无数据库；最佳任期与引导状态只保存在浏览器 `localStorage`。
 
-1. 新建 GitHub 仓库，将本目录推送到 `main`；
-2. 仓库 **Settings → Pages → Build and deployment**：
-   - Source 选择 **Deploy from a branch**
-   - Branch 选择 **main**，目录选择 **`/ (root)`**，保存；
-3. 等 Actions 完成，访问 `https://<你的用户名>.github.io/<仓库名>/`。
+## 部署
 
-根目录的 `index.html` 是入口页，`web/` 下两个页面与资源按相对路径可直接访问；`.nojekyll` 已就位。
+GitHub Pages 已启用：
 
-### 只部署游戏
+- 仓库：`936959449/save-nvidia`
+- Source：`main` / `/ (root)`
+- 构建方式：Jekyll 关闭（`.nojekyll`）
+- 站点：https://936959449.github.io/save-nvidia/
 
-如果只想发布游戏、不带视觉方案：
-
-- 把 `web/prototype/` 的内容复制到一个独立的 `docs/` 或新仓库根目录；
-- 注意 `../index.html`（返回视觉方案）会失效，可改成返回自己的入口；
-- 仍保留 `assets/` 相对路径与 `.nojekyll`。
+更新内容后提交到 `main`，Pages 会自动重新构建。也可以直接用 GitHub API 更新。
 
 ## 资源与性能
-
-当前美术已接入，页面加载的是 **WebP**：
 
 | 项目 | 大小 |
 |---|---|
 | 29 张源 PNG | **41.78 MB** |
 | 29 张 WebP（页面实际加载） | **4.01 MB（约 9.6%）** |
-| 首页首屏实际请求 | 约 0.6 MB（3 张图） |
-| 开场播放时预热全部角色 | 约 4 MB |
+| 首页首屏实际请求 | 约 0.6 MB |
+| 开场期间后台预热角色素材 | 约 4 MB |
+| 当前部署站点 | 约 9 MB（含截图） |
 
-- 加载器顺序：`webp → png → jpg → jpeg → svg`；PNG 保留为本地源与回退。
-- 首屏只加载标题/档案卡/证据图；其余角色在开场播放时后台预热，避免挡住首屏。
+- 加载器顺序：`webp → png → jpg → jpeg → svg`；PNG 为源文件/回退。
+- 首屏仅加载当前可见的 3 张图；其余素材在开场播放时预热。
 - 替换 PNG 后运行：
   ```bash
-  python web/prototype/assets/tools/optimize_assets.py
+  python web/game/assets/tools/optimize_assets.py
   ```
-  脚本只重转缺失或比 PNG 新的 WebP。
-- `.gitignore` 默认忽略 PNG 源文件与 `art-assets/` 工作目录；部署体积约 **9 MB**（含预览图；预览图不参与游戏加载）。如需把 PNG 也纳入版本库，删除对应 ignore 规则或改用 Git LFS。
-
-## 新手引导
-
-### 首次进入
-
-`开始任期的第一天` → 开场演出（可跳过）→ **入职须知**（首次显示）→ 第一张卡：
-
-1. **怎么操作**：拖动卡片，松手选择；桌面端也支持 `←` / `→` 和右侧按钮。
-2. **你要做什么**：撑到第 90 天董事会表决——这是第一个里程碑，之后还能继续刷新任期。
-3. **选择会改变四条线**：资本 / 工程 / 客户 / 政界，任一归零或爆表，任期立刻结束。
-
-首次进入游戏还会出现一次操作提示条；做出第一次选择后提示“四条线已变化”。游戏内右上角「玩法 ?」可随时重开引导。
-
-### 相关代码
-
-- 引导结构：`web/prototype/index.html` 的 `#screen-guide`
-- 引导显示/跳过/重复查看：`web/prototype/game.js` 的 `openGuide` / `closeGuide` / `hasSeenGuide`
-- 首次提示：`showCoach` / `hideCoach`；首轮标记在 `localStorage` 的 `saveNvidia.guideSeen`
+  需要 Python + Pillow；脚本只重转缺失或比 PNG 新的 WebP。
+- `.gitignore` 默认忽略 PNG 源文件与 `art-assets/` 工作目录；部署时只带 WebP。如需把 PNG 纳入版本库，删除对应 ignore 规则或改用 Git LFS。
 
 ## 合规与边界
 
-这不是法律意见；公开传播前建议按你的实际发行范围复核。
+以下为工程检查，不构成法律意见。
 
-- **虚构标识**：入口页、标题页、开场演出、入职须知、新闻终端、报纸结局都标注了 `ALT-HISTORY / 虚构推演 / FICTIONAL`，并说明“不是新闻”。
-- **搜索误读**：根目录 `robots.txt` 与页面 `<meta name="robots" content="noindex,nofollow">` 默认不允许索引；如果要做正式宣发，再按需要调整。
-- **不使用官方素材**：页面不使用 NVIDIA 官方 Logo、新闻照片或真实人物照片；绿色仅作配色氛围，不复制官方标识。
-- **真实人物与名称**：黄仁勋、科莱特·克雷斯、哈维·琼斯等为剧情中的真实姓名/职位；事件、台词、结局均为虚构化演绎。若公开传播或商业化，建议把 A 级真实人物改为化名或做更强的前置说明，避免被理解为真实报道或构成名誉风险。
-- **美术权利**：当前 29 张美术来自项目自带素材/生成素材，需自行确认生成工具条款、商用范围与是否含真人相似度；上线前建议保留素材来源与授权记录。
-- **不商业化**：建议保持非商业同人原型；不要接广告、付费或把页面包装成真实财经资讯。
-- **隐私**：无分析脚本、无第三方追踪、无 Cookies；只用 `localStorage` 保存最佳任期与引导状态，不上传服务器。
-- **GitHub Pages**：纯静态、无密钥、无后端注入面；站点上限 1 GB、月带宽软上限约 100 GB、构建软上限 10 次/小时（[GitHub Pages limits](https://docs.github.com/zh/pages/getting-started-with-github-pages/github-pages-limits)）。当前部署体积约 9 MB（含预览图），远低于限制。
-
-如果你希望公开版更稳妥，我可以再加一轮：把真实人物改成化名、把“新闻终端”改成“推演终端”、在入口页加显眼的“虚构作品”首屏确认。
-
-## 已知限制
-
-- 平衡仅做首轮验证，未经过大规模数值测试。
-- 无音效/配音；开场与引导为纯前端演出。
-- 卡池为第一版（37 张）；叙事弧未覆盖全部设计文档章节。
-- 预览图为桌面截图，移动端以实际页面为准。
+- **虚构标识**：入口、标题、开场、入职须知、新闻终端、报纸结局都标注 `ALT-HISTORY / 虚构推演 / FICTIONAL`，并写明“不是新闻”。
+- **搜索误读**：`robots.txt` 与页面 `<meta name="robots" content="noindex,nofollow">` 默认禁止索引；如需公开宣发，再按需要调整。
+- **不使用官方素材**：不使用 NVIDIA 官方 Logo、新闻照片或真实人物照片；绿色仅作配色氛围。
+- **真实人物与名称**：黄仁勋、科莱特·克雷斯、哈维·琼斯等为剧情中的真实姓名/职位，事件、台词、结局均为虚构化演绎。公开传播或商业化前，建议按玩法文档 §10.3 使用化名，或做更强的虚构声明，避免被理解为真实报道。
+- **美术权利**：当前美术为项目自带/生成素材，需自行确认生成工具条款、商用范围与真人相似度；上线前建议保留素材来源与授权记录。
+- **非商业**：建议保持非商业同人作品；不要接广告、付费，或把页面包装成真实财经资讯。
+- **隐私**：无分析脚本、无第三方追踪、无 Cookies；仅用 `localStorage` 保存最佳任期与引导状态。
+- **GitHub Pages**：纯静态、无密钥、无后端注入面；站点上限 1 GB、月带宽软上限约 100 GB（[GitHub Pages limits](https://docs.github.com/zh/pages/getting-started-with-github-pages/github-pages-limits)）。当前部署体积远低于限制。
 
 ## License / rights
 
-代码与文案目前未授予开源许可。若公开仓库并希望他人复用代码，建议单独添加代码 LICENSE（如 MIT），美术与剧情文本不自动随代码授权；NVIDIA 商标与相关名称归其权利人所有。
+代码与文案目前未授予开源许可；如需允许复用代码，请单独添加 LICENSE。美术与剧情文本不自动随代码授权；NVIDIA 商标与相关名称归其权利人所有。

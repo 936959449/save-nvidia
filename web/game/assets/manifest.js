@@ -1,7 +1,7 @@
 window.ART_SLOTS = {
   "version": "1.0.0",
   "updated": "2026-11-13",
-  "project": "拯救英伟达 · 原型美术槽位",
+  "project": "拯救英伟达 · 美术资源槽位",
   "notes": "替换时把同名 PNG（源文件）放到对应目录，并运行 tools/optimize_assets.py 生成 WebP；加载器按 webp→png→jpg→jpeg→svg 查找。安全区内的主体不会被 UI 裁掉；焦点默认在画布上方 38% 处。",
   "canvas": {
     "character": {
