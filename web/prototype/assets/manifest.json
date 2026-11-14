@@ -1,0 +1,300 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-11-13",
+  "project": "拯救英伟达 · 原型美术槽位",
+  "notes": "替换时把同名 PNG（源文件）放到对应目录，并运行 tools/optimize_assets.py 生成 WebP；加载器按 webp→png→jpg→jpeg→svg 查找。安全区内的主体不会被 UI 裁掉；焦点默认在画布上方 38% 处。",
+  "canvas": {
+    "character": {
+      "w": 1200,
+      "h": 840,
+      "safe": 80,
+      "focal": [
+        600,
+        320
+      ]
+    },
+    "scene": {
+      "w": 1600,
+      "h": 900,
+      "safe": 80
+    },
+    "evidence": {
+      "w": 1200,
+      "h": 800,
+      "safe": 60
+    },
+    "news": {
+      "w": 800,
+      "h": 600,
+      "safe": 40
+    }
+  },
+  "characters": [
+    {
+      "id": "jones",
+      "name": "哈维·琼斯",
+      "role": "董事会主席",
+      "faction": "资本",
+      "color": "#C9A24A",
+      "note": "银发、眼镜、深橄榄西装；视平线略高，像在审视玩家。",
+      "states": [
+        {
+          "state": "neutral",
+          "label": "平静",
+          "file": "characters/jones-neutral",
+          "usage": "卡片默认立绘"
+        },
+        {
+          "state": "pressured",
+          "label": "施压",
+          "file": "characters/jones-pressured",
+          "usage": "选择后的表情反馈"
+        },
+        {
+          "state": "pleased",
+          "label": "满意",
+          "file": "characters/jones-pleased",
+          "usage": "选择后的表情反馈"
+        }
+      ]
+    },
+    {
+      "id": "kress",
+      "name": "科莱特·克雷斯",
+      "role": "临时 CEO 兼 CFO",
+      "faction": "资本",
+      "color": "#C9A24A",
+      "note": "深色波波头、蓝西装、珍珠耳环；姿态克制。",
+      "states": [
+        {
+          "state": "neutral",
+          "label": "平静",
+          "file": "characters/kress-neutral",
+          "usage": "卡片默认立绘"
+        },
+        {
+          "state": "pressured",
+          "label": "施压",
+          "file": "characters/kress-pressured",
+          "usage": "选择后的表情反馈"
+        },
+        {
+          "state": "pleased",
+          "label": "满意",
+          "file": "characters/kress-pleased",
+          "usage": "选择后的表情反馈"
+        }
+      ]
+    },
+    {
+      "id": "admin",
+      "name": "玛丽",
+      "role": "行政主管",
+      "faction": "内部",
+      "color": "#9AA88F",
+      "note": "发髻、开衫、工牌挂绳；手里常抱一个纸箱。",
+      "states": [
+        {
+          "state": "neutral",
+          "label": "平静",
+          "file": "characters/admin-neutral",
+          "usage": "卡片默认立绘"
+        },
+        {
+          "state": "pressured",
+          "label": "施压",
+          "file": "characters/admin-pressured",
+          "usage": "选择后的表情反馈"
+        },
+        {
+          "state": "pleased",
+          "label": "满意",
+          "file": "characters/admin-pleased",
+          "usage": "选择后的表情反馈"
+        }
+      ]
+    },
+    {
+      "id": "regulator",
+      "name": "老周",
+      "role": "市场监管调查组",
+      "faction": "中国监管",
+      "color": "#D4574A",
+      "note": "短黑发、圆框眼镜、暗红夹克；目光不直视。",
+      "states": [
+        {
+          "state": "neutral",
+          "label": "平静",
+          "file": "characters/regulator-neutral",
+          "usage": "卡片默认立绘"
+        },
+        {
+          "state": "pressured",
+          "label": "施压",
+          "file": "characters/regulator-pressured",
+          "usage": "选择后的表情反馈"
+        },
+        {
+          "state": "pleased",
+          "label": "满意",
+          "file": "characters/regulator-pleased",
+          "usage": "选择后的表情反馈"
+        }
+      ]
+    },
+    {
+      "id": "official",
+      "name": "许可官",
+      "role": "出口管制办公室",
+      "faction": "白宫",
+      "color": "#6C86A8",
+      "note": "侧分短发、藏蓝西装、国旗别针与耳麦线。",
+      "states": [
+        {
+          "state": "neutral",
+          "label": "平静",
+          "file": "characters/official-neutral",
+          "usage": "卡片默认立绘"
+        },
+        {
+          "state": "pressured",
+          "label": "施压",
+          "file": "characters/official-pressured",
+          "usage": "选择后的表情反馈"
+        },
+        {
+          "state": "pleased",
+          "label": "满意",
+          "file": "characters/official-pleased",
+          "usage": "选择后的表情反馈"
+        }
+      ]
+    },
+    {
+      "id": "buyer",
+      "name": "戴维",
+      "role": "超大规模云厂商采购",
+      "faction": "客户",
+      "color": "#5689DA",
+      "note": "短寸、浅蓝衬衫、公司挂绳；手里拿着合同或平板。",
+      "states": [
+        {
+          "state": "neutral",
+          "label": "平静",
+          "file": "characters/buyer-neutral",
+          "usage": "卡片默认立绘"
+        },
+        {
+          "state": "pressured",
+          "label": "施压",
+          "file": "characters/buyer-pressured",
+          "usage": "选择后的表情反馈"
+        },
+        {
+          "state": "pleased",
+          "label": "满意",
+          "file": "characters/buyer-pleased",
+          "usage": "选择后的表情反馈"
+        }
+      ]
+    },
+    {
+      "id": "supplier",
+      "name": "林先生",
+      "role": "台积电产能主管",
+      "faction": "供应链",
+      "color": "#76B900",
+      "note": "灰发、工装夹克、厂牌；背景可带晶圆/机台暗示。",
+      "states": [
+        {
+          "state": "neutral",
+          "label": "平静",
+          "file": "characters/supplier-neutral",
+          "usage": "卡片默认立绘"
+        },
+        {
+          "state": "pressured",
+          "label": "施压",
+          "file": "characters/supplier-pressured",
+          "usage": "选择后的表情反馈"
+        },
+        {
+          "state": "pleased",
+          "label": "满意",
+          "file": "characters/supplier-pleased",
+          "usage": "选择后的表情反馈"
+        }
+      ]
+    },
+    {
+      "id": "huang",
+      "name": "黄仁勋",
+      "role": "前任 CEO（不出场）",
+      "faction": "前任",
+      "color": "#76B900",
+      "note": "不画正脸。只交付三样东西：皮衣、信件、GTC 剪影。",
+      "states": [
+        {
+          "state": "jacket",
+          "label": "皮衣",
+          "file": "characters/huang-jacket",
+          "usage": "选择后的表情反馈"
+        },
+        {
+          "state": "letter",
+          "label": "信件",
+          "file": "characters/huang-letter",
+          "usage": "选择后的表情反馈"
+        },
+        {
+          "state": "stage",
+          "label": "GTC 剪影",
+          "file": "characters/huang-stage",
+          "usage": "选择后的表情反馈"
+        }
+      ]
+    }
+  ],
+  "misc": [
+    {
+      "id": "office",
+      "group": "scenes",
+      "name": "顶层办公室",
+      "file": "scenes/office",
+      "note": "黄昏落地窗、数据中心剪影、皮衣挂在椅背上（可空镜）。",
+      "usage": "标题 / 事件背景"
+    },
+    {
+      "id": "boardroom",
+      "group": "scenes",
+      "name": "董事会会议室",
+      "file": "scenes/boardroom",
+      "note": "长桌、绿台灯、空椅子；冷色调。",
+      "usage": "标题 / 事件背景"
+    },
+    {
+      "id": "gtc",
+      "group": "scenes",
+      "name": "GTC 舞台",
+      "file": "scenes/gtc",
+      "note": "绿色背光、巨大屏幕、台下只留黑色人海。",
+      "usage": "标题 / 事件背景"
+    },
+    {
+      "id": "jacket",
+      "group": "evidence",
+      "name": "证据 01 · 皮衣",
+      "file": "evidence/jacket",
+      "note": "皮衣挂在椅背，办公室暗场，绿色屏幕光。3:2 横构图。",
+      "usage": "标题页证据照片"
+    },
+    {
+      "id": "photo",
+      "group": "news",
+      "name": "报纸配图 · 通用",
+      "file": "news/photo",
+      "note": "半调黑白新闻照；跌幅曲线 / 交易所 / 空椅子任选。",
+      "usage": "结局报纸配图"
+    }
+  ]
+}

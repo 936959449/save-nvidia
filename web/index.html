@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#080A09">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23080A09'/%3E%3Crect x='6' y='6' width='20' height='20' rx='4' fill='none' stroke='%2376B900' stroke-width='2'/%3E%3Cpath d='M16 10v12M10 16h12' stroke='%23A6E04C' stroke-width='2'/%3E%3C/svg%3E">
+<title>拯救英伟达 · 网页视觉方案 v0.2（架空推演）</title>
+<meta name="description" content="《拯救英伟达》架空历史同人卡牌游戏的网页视觉方案；非真实新闻，与 NVIDIA 及现实人物、事件无关。">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ============ SVG DEFS ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-cap" viewBox="0 0 16 16"><path d="M2 12.5V5.2l3 3 3-5.2 3 4.2h3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-eng" viewBox="0 0 16 16"><rect x="3.5" y="3.5" width="9" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M6 1.5v2M10 1.5v2M6 12.5v2M10 12.5v2M1.5 6h2M1.5 10h2M12.5 6h2M12.5 10h2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+    <symbol id="i-cus" viewBox="0 0 16 16"><rect x="2" y="2.4" width="12" height="4.2" rx="1.1" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="2" y="9.4" width="12" height="4.2" rx="1.1" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M4.4 4.5h1.2M4.4 11.5h1.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+    <symbol id="i-pol" viewBox="0 0 16 16"><path d="M8 1.4 14.2 4.8H1.8L8 1.4Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M3.4 4.8v7.2M8 4.8v7.2M12.6 4.8v7.2M1.8 12.6h12.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 16 16"><path d="M8 1.4 13.2 3.5v3.9c0 3-2.1 5.1-5.2 6.6-3.1-1.5-5.2-3.6-5.2-6.6V3.5L8 1.4Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 16 16"><path d="M2.2 8h11M9.2 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-cash" viewBox="0 0 16 16"><rect x="1.6" y="4.2" width="12.8" height="7.6" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="8" cy="8" r="2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M4.2 6.4h.01M11.8 9.6h.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 16 16"><path d="M4 1.8h5l3.2 3.2v9.2H4z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M9 1.8V5h3.2M6.2 8.2h3.8M6.2 10.6h3.8" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></symbol>
+    <symbol id="i-chip" viewBox="0 0 16 16"><rect x="4" y="4" width="8" height="8" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M6 2v2M10 2v2M6 12v2M10 12v2M2 6h2M2 10h2M12 6h2M12 10h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></symbol>
+
+    <pattern id="ht" width="3.6" height="3.6" patternUnits="userSpaceOnUse">
+      <circle cx="1.8" cy="1.8" r=".8" fill="#F4EFE4" opacity=".26"/>
+    </pattern>
+    <pattern id="ht-ink" width="3.2" height="3.2" patternUnits="userSpaceOnUse">
+      <circle cx="1.6" cy="1.6" r=".7" fill="#1A1611" opacity=".18"/>
+    </pattern>
+
+    <symbol id="p-jones" viewBox="0 0 120 84">
+      <rect width="120" height="84" fill="#232A1E"/>
+      <rect width="120" height="84" fill="url(#ht)"/>
+      <circle cx="86" cy="27" r="19" fill="#C9A24A" opacity=".92"/>
+      <g transform="translate(-13.2 -7.4) scale(1.22)">
+      <g opacity=".38" fill="#C9A24A">
+        <path d="M10 84c1-14 8-25 21-30 6-2 12-4 18-4h22c6 0 12 2 18 4 13 5 20 16 21 30Z" transform="translate(-2.2 1.4)"/>
+        <ellipse cx="60" cy="37" rx="14.5" ry="16" transform="translate(-2.2 1.4)"/>
+      </g>
+      <path d="M10 84c1-14 8-25 21-30 6-2 12-4 18-4h22c6 0 12 2 18 4 13 5 20 16 21 30Z" fill="#3C4532" stroke="#F4EFE4" stroke-width="1.4" paint-order="stroke"/>
+      <path d="M53 55h14v13H53z" fill="#BFA079"/>
+      <ellipse cx="60" cy="37" rx="14.5" ry="16" fill="#C9A67E" stroke="#F4EFE4" stroke-width="1.4" paint-order="stroke"/>
+      <path d="M45 35c0-9 7-16 15-16s15 7 15 16c0 3-1 4-2 4 0-5-5-9-13-9s-13 4-13 9c-1 0-2-1-2-4Z" fill="#E5DFD1" stroke="#F4EFE4" stroke-width="1.5" paint-order="stroke"/>
+      <circle cx="44.5" cy="38" r="2.7" fill="#C9A67E"/>
+      <circle cx="75.5" cy="38" r="2.7" fill="#C9A67E"/>
+      <path d="M48.6 32h6.3M65.1 32h6.3" stroke="#8E7A5C" stroke-width="1.4" stroke-linecap="round"/>
+      <rect x="47.2" y="35.4" width="10" height="6.6" rx="2.2" fill="none" stroke="#1A1611" stroke-width="1.8"/>
+      <rect x="62.8" y="35.4" width="10" height="6.6" rx="2.2" fill="none" stroke="#1A1611" stroke-width="1.8"/>
+      <path d="M57.2 38.6h5.6" stroke="#1A1611" stroke-width="1.8"/>
+      <circle cx="52.2" cy="38.8" r="1.15" fill="#1A1611"/>
+      <circle cx="67.8" cy="38.8" r="1.15" fill="#1A1611"/>
+      <path d="M60 43v3.4" stroke="#A98661" stroke-width="1.2" stroke-linecap="round"/>
+      <path d="M55.4 48.6h9.2" stroke="#7C5B44" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M51.5 55.5l8.5 8 8.5-8" fill="#EFE8DA" stroke="#D9CFBB" stroke-width="1"/>
+      <path d="M60 63.5l-2.6 8.5h5.2L60 63.5Z" fill="#C9A24A"/>
+      <path d="M77 71.5l6-3 3 5.5-6.5 2z" fill="#C9A24A" opacity=".9"/>
+      </g>
+    </symbol>
+    <symbol id="p-cfo" viewBox="0 0 120 84">
+      <rect width="120" height="84" fill="#1A212C"/>
+      <rect width="120" height="84" fill="url(#ht)"/>
+      <circle cx="33" cy="29" r="18" fill="#5689DA" opacity=".92"/>
+      <g transform="translate(-13.2 -7.4) scale(1.22)">
+      <g opacity=".38" fill="#5689DA">
+        <path d="M10 84c1-14 8-25 21-30 6-2 12-4 18-4h22c6 0 12 2 18 4 13 5 20 16 21 30Z" transform="translate(-2.2 1.4)"/>
+        <ellipse cx="60" cy="37" rx="14.5" ry="16" transform="translate(-2.2 1.4)"/>
+      </g>
+      <path d="M10 84c1-14 8-25 21-30 6-2 12-4 18-4h22c6 0 12 2 18 4 13 5 20 16 21 30Z" fill="#2F4664" stroke="#F4EFE4" stroke-width="1.4" paint-order="stroke"/>
+      <path d="M53 55h14v13H53z" fill="#D9B895"/>
+      <ellipse cx="60" cy="37" rx="14.5" ry="16" fill="#E0C29F" stroke="#F4EFE4" stroke-width="1.4" paint-order="stroke"/>
+      <path d="M43 42c0-14 7-22 17-22s17 8 17 22c0 6-2 9-4 9 2-11-4-17-13-17s-15 6-13 17c-2 0-4-3-4-9Z" fill="#2B2A2A" stroke="#F4EFE4" stroke-width="1.5" paint-order="stroke"/>
+      <circle cx="76" cy="46" r="1.9" fill="#C9A24A"/>
+      <path d="M49 36.5h5M58 36.5h5" stroke="#8D7155" stroke-width="1.4" stroke-linecap="round"/>
+      <circle cx="52" cy="40" r="1.2" fill="#1A1611"/>
+      <circle cx="66" cy="40" r="1.2" fill="#1A1611"/>
+      <path d="M60 43v3.4" stroke="#A98661" stroke-width="1.2" stroke-linecap="round"/>
+      <path d="M55.6 48.6h8.8" stroke="#7C5B44" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M51.5 55.5l8.5 9 8.5-9" fill="#EFE8DA" stroke="#D9CFBB" stroke-width="1"/>
+      <path d="M60 64.5v10" stroke="#8FA8C8" stroke-width="1.2"/>
+      <path d="M44 71l5-4M76 71l-5-4" stroke="#8FA8C8" stroke-width="1" opacity=".7"/>
+      </g>
+    </symbol>
+    <symbol id="p-admin" viewBox="0 0 120 84">
+      <rect width="120" height="84" fill="#232820"/>
+      <rect width="120" height="84" fill="url(#ht)"/>
+      <circle cx="84" cy="30" r="17" fill="#9AA88F" opacity=".9"/>
+      <g transform="translate(-13.2 -7.4) scale(1.22)">
+      <g opacity=".35" fill="#9AA88F">
+        <path d="M10 84c1-14 8-25 21-30 6-2 12-4 18-4h22c6 0 12 2 18 4 13 5 20 16 21 30Z" transform="translate(-2 1.4)"/>
+        <ellipse cx="60" cy="38" rx="14" ry="15.5" transform="translate(-2 1.4)"/>
+      </g>
+      <path d="M10 84c1-14 8-25 21-30 6-2 12-4 18-4h22c6 0 12 2 18 4 13 5 20 16 21 30Z" fill="#4B5344" stroke="#F4EFE4" stroke-width="1.4" paint-order="stroke"/>
+      <path d="M53 56h14v12H53z" fill="#C7A57E"/>
+      <ellipse cx="60" cy="38" rx="14" ry="15.5" fill="#D4B58F" stroke="#F4EFE4" stroke-width="1.4" paint-order="stroke"/>
+      <circle cx="60" cy="17" r="6" fill="#3A3A34" stroke="#F4EFE4" stroke-width="1.6" paint-order="stroke"/>
+      <path d="M46 37c0-8 6-14 14-14s14 6 14 14c0 2-1 3-2 3 0-5-5-8-12-8s-12 3-12 8c-1 0-2-1-2-3Z" fill="#4A4038" stroke="#F4EFE4" stroke-width="1.4" paint-order="stroke"/>
+      <path d="M50 37.5h4.4M65.6 37.5H70" stroke="#8B7B62" stroke-width="1.4" stroke-linecap="round"/>
+      <circle cx="52.4" cy="41" r="1.1" fill="#1A1611"/>
+      <circle cx="67.6" cy="41" r="1.1" fill="#1A1611"/>
+      <path d="M60 43.5v3.2" stroke="#A98661" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M56 48.6c2.2 1.1 5.8 1.1 8 0" fill="none" stroke="#7C5B44" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M53 56l7 8 7-8" fill="#EFE8DA" stroke="#D9CFBB" stroke-width="1"/>
+      <path d="M52 57l-4 15M68 57l4 15" stroke="#C9C1AE" stroke-width="1.6"/>
+      <rect x="49" y="67" width="22" height="9" rx="1.5" fill="#E7DEC9" stroke="#B7A98F" stroke-width="1"/>
+      <path d="M52 70h9M52 73h6" stroke="#7C6B52" stroke-width="1" stroke-linecap="round"/>
+      </g>
+    </symbol>
+    <symbol id="p-reg" viewBox="0 0 120 84">
+      <rect width="120" height="84" fill="#2B1D1B"/>
+      <rect width="120" height="84" fill="url(#ht)"/>
+      <circle cx="86" cy="27" r="20" fill="#C05A4A" opacity=".92"/>
+      <g transform="translate(-13.2 -7.4) scale(1.22)">
+      <g opacity=".38" fill="#C05A4A">
+        <path d="M10 84c1-14 8-25 21-30 6-2 12-4 18-4h22c6 0 12 2 18 4 13 5 20 16 21 30Z" transform="translate(-2.2 1.4)"/>
+        <ellipse cx="60" cy="37" rx="14.5" ry="16" transform="translate(-2.2 1.4)"/>
+      </g>
+      <path d="M10 84c1-14 8-25 21-30 6-2 12-4 18-4h22c6 0 12 2 18 4 13 5 20 16 21 30Z" fill="#4A2E29" stroke="#F4EFE4" stroke-width="1.4" paint-order="stroke"/>
+      <path d="M53 55h14v13H53z" fill="#C7A57E"/>
+      <ellipse cx="60" cy="37" rx="14.5" ry="16" fill="#D6B58C" stroke="#F4EFE4" stroke-width="1.4" paint-order="stroke"/>
+      <path d="M46 35c0-8 6-14 14-14s14 6 14 14c0 2 0 3-1 4-1-5-6-8-13-8s-12 3-13 8c-1-1-1-2-1-4Z" fill="#241E1B" stroke="#F4EFE4" stroke-width="1.5" paint-order="stroke"/>
+      <circle cx="52.2" cy="39" r="4.7" fill="none" stroke="#1A1611" stroke-width="1.6"/>
+      <circle cx="67.8" cy="39" r="4.7" fill="none" stroke="#1A1611" stroke-width="1.6"/>
+      <path d="M56.9 39h6.2" stroke="#1A1611" stroke-width="1.6"/>
+      <circle cx="52.2" cy="39" r="1" fill="#1A1611"/>
+      <circle cx="67.8" cy="39" r="1" fill="#1A1611"/>
+      <path d="M60 43.5v3.2" stroke="#A98661" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M55.5 49.6h9" stroke="#6E4A37" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M51.5 55.5l8.5 9 8.5-9" fill="#EFE8DA" stroke="#D9CFBB" stroke-width="1"/>
+      <path d="M60 64.5l-3 12h6Z" fill="#2A1D1A"/>
+      <path d="M91 72l14-4 2 8-14 3z" fill="#8E2F25" stroke="#F4EFE4" stroke-width="1.6" paint-order="stroke"/>
+      </g>
+    </symbol>
+    <symbol id="p-official" viewBox="0 0 120 84">
+      <rect width="120" height="84" fill="#1B2129"/>
+      <rect width="120" height="84" fill="url(#ht)"/>
+      <circle cx="34" cy="28" r="17" fill="#6C86A8" opacity=".9"/>
+      <g transform="translate(-13.2 -7.4) scale(1.22)">
+      <g opacity=".35" fill="#6C86A8">
+        <path d="M10 84c1-14 8-25 21-30 6-2 12-4 18-4h22c6 0 12 2 18 4 13 5 20 16 21 30Z" transform="translate(-2 1.4)"/>
+        <ellipse cx="60" cy="37" rx="14.5" ry="16" transform="translate(-2 1.4)"/>
+      </g>
+      <path d="M10 84c1-14 8-25 21-30 6-2 12-4 18-4h22c6 0 12 2 18 4 13 5 20 16 21 30Z" fill="#243145" stroke="#F4EFE4" stroke-width="1.4" paint-order="stroke"/>
+      <path d="M53 55h14v13H53z" fill="#D9B895"/>
+      <ellipse cx="60" cy="37" rx="14.5" ry="16" fill="#E2C6A3" stroke="#F4EFE4" stroke-width="1.4" paint-order="stroke"/>
+      <path d="M45 34c1-9 7-15 15-15s14 6 15 15c-4-4-8-5-15-5s-11 1-15 5Z" fill="#4B4034" stroke="#F4EFE4" stroke-width="1.5" paint-order="stroke"/>
+      <path d="M49 36h5M58 36h5" stroke="#8D7155" stroke-width="1.4" stroke-linecap="round"/>
+      <circle cx="52" cy="39.4" r="1.2" fill="#1A1611"/>
+      <circle cx="66" cy="39.4" r="1.2" fill="#1A1611"/>
+      <path d="M60 42.6v3.2" stroke="#A98661" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M55.8 48.4h8.4" stroke="#7C5B44" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M51.5 55.5l8.5 9 8.5-9" fill="#EFE8DA" stroke="#D9CFBB" stroke-width="1"/>
+      <path d="M60 64.5l-2.6 10h5.2Z" fill="#1A2433"/>
+      <path d="M76 69l4.5 1.5-1.2 4-4.5-1.6z" fill="#C05A4A" stroke="#F4EFE4" stroke-width="1" paint-order="stroke"/>
+      <path d="M75.5 42c2.5 1 3.6 4 3.2 7.5-.3 2.6-1.6 4.6-3 5.5" fill="none" stroke="#8FA3C0" stroke-width="1.1" stroke-linecap="round"/>
+      </g>
+    </symbol>
+    <symbol id="p-coat" viewBox="0 0 120 84">
+      <rect width="120" height="84" fill="#131313"/>
+      <rect width="120" height="84" fill="url(#ht)"/>
+      <circle cx="63" cy="35" r="24" fill="#76B900" opacity=".16"/>
+      <circle cx="63" cy="35" r="15" fill="none" stroke="#76B900" stroke-width=".9" opacity=".4"/>
+      <g transform="translate(-13.2 -7.4) scale(1.22)">
+      <path d="M30 84V52h60v32" fill="none" stroke="#2A2A2A" stroke-width="3"/>
+      <rect x="36" y="28" width="48" height="30" rx="4" fill="#232323" stroke="#3A3A3A" stroke-width="1.6"/>
+      <path d="M30 84l8-52M90 84l-8-52" stroke="#2A2A2A" stroke-width="3" stroke-linecap="round"/>
+      <path d="M60 12v10" stroke="#6A6A6A" stroke-width="1.6"/>
+      <path d="M53 22h14" stroke="#6A6A6A" stroke-width="2" stroke-linecap="round"/>
+      <path d="M44 20h32l6 16-8 4-2 26H48l-2-26-8-4 6-16Z" fill="#0D0D0D" stroke="#4A4A4A" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M54 20l6 12 6-12" fill="none" stroke="#3C3C3C" stroke-width="1.4"/>
+      <path d="M48 20c-2 10-4 22-2 32M72 20c2 10 4 22 2 32" fill="none" stroke="#232323" stroke-width="1.4"/>
+      <path d="M50 34l10 8 10-8" fill="none" stroke="#3C3C3C" stroke-width="1.2"/>
+      <path d="M42 44h4M74 44h4" stroke="#76B900" stroke-width="1.2" opacity=".55"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ============ TOPBAR ============ -->
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="回到顶部">
+      <span class="mark" aria-hidden="true"></span>
+      拯救英伟达 <small>WEB VISUAL / v0.2</small>
+    </a>
+    <nav class="nav" aria-label="页面导航">
+      <a href="#concept">设计概念</a>
+      <a href="#screens">双端界面</a>
+      <a href="#states">交互状态</a>
+      <a href="#demo">试玩样张</a>
+      <a href="#rules">适配规则</a>
+    </nav>
+    <a class="top-cta" href="prototype/index.html"><svg width="13" height="13" aria-hidden="true"><use href="#i-arrow"/></svg>试玩原型</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <span class="kicker">REIGNS-LIKE · CARD DECISIONS · PC + H5</span>
+        <h1>拯救英伟达<em>。</em><span class="thin">黄仁勋走了，皮衣还挂在椅背上。</span></h1>
+        <p class="lead">你是董事会找来的临时 CEO。四条线——<b>资本、工程、客户、政界</b>——任何一条先断，你的任期就结束。一次滑动，一个二选一，没有胜利条件。</p>
+        <div class="chips" aria-label="项目信息">
+          <span class="chip"><i></i>事件改编 · 2026-11-12</span>
+          <span class="chip"><i></i>9:16 竖屏</span>
+          <span class="chip"><i></i>8–15 分钟 / 局</span>
+          <span class="chip chip--gold"><i></i>PC + H5</span>
+        </div>
+        <div class="actions">
+          <a class="btn btn--primary" href="#screens"><svg width="14" height="14" aria-hidden="true"><use href="#i-arrow"/></svg>看双端界面</a>
+          <a class="btn btn--ghost" href="#demo">试玩交互样张</a>
+        </div>
+        <p class="hero-note">视觉方案只做包装，不新增玩法系统；页面数据为设计演练值。本作是架空推演，非真实新闻。</p>
+      </div>
+
+      <div class="hero-art" aria-hidden="true">
+        <div class="art-glow"></div>
+        <div class="gauge-panel">
+          <div class="gp-head"><span class="live"></span>FOUR LIVES / 四条命</div>
+          <div class="gp-row" style="--c:var(--gold)"><span class="gp-name"><i></i>资本</span><span class="gp-track"><b style="--v:42%"></b></span></div>
+          <div class="gp-row" style="--c:var(--green)"><span class="gp-name"><i></i>工程</span><span class="gp-track"><b style="--v:55%"></b></span></div>
+          <div class="gp-row" style="--c:var(--blue)"><span class="gp-name"><i></i>客户</span><span class="gp-track"><b style="--v:50%"></b></span></div>
+          <div class="gp-row" style="--c:var(--red)"><span class="gp-name"><i></i>政界</span><span class="gp-track"><b style="--v:45%"></b></span></div>
+          <div class="gp-foot"><span>DAY 044</span><span>Q2 · 11:42</span></div>
+        </div>
+        <div class="hero-card gcard">
+          <div class="gcard-meta"><span class="gfile">FILE 00 · 2026-11-12</span><span class="gfac" style="--fc:var(--gold)"><i></i>董事长</span></div>
+          <div class="gcard-figure"><svg class="gcard-portrait"><use href="#p-jones"/></svg></div>
+          <div class="gcard-name-row"><b class="gcard-name">哈维·琼斯</b><span class="gcard-role">董事会主席</span></div>
+          <p class="gcard-quote">“董事会找到你，给了你九十天。九十天后，他们会再投一次票。”</p>
+          <div class="gcard-choices"><span>← 我需要时间</span><span>我准备好了 →</span></div>
+          <span class="gstamp">临时 CEO<br>90 DAYS</span>
+        </div>
+        <span class="art-chip art-chip--day"><span class="blink"></span>DAY 044</span>
+        <span class="art-chip art-chip--q">Q2 · 第 2 财季</span>
+        <div class="evidence" aria-hidden="true">
+          <svg viewBox="0 0 120 84"><use href="#p-coat"/></svg>
+          <span><b>EVIDENCE 01</b><b>皮衣 · 顶层办公室</b></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 01 CONCEPT ============ -->
+  <section class="section" id="concept">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="section-no">01</span>
+        <h2 class="section-title">一张纸，一台终端，四条命</h2>
+        <p class="section-sub">视觉只回答一个问题：<b>“这是我做的决定，还是别人替我做的？”</b> 卡片是暖色的纸，背景是冷的终端；颜色只用来标记派系，不用来煽情。</p>
+      </div>
+
+      <div class="principles">
+        <article class="p-card reveal">
+          <span class="p-ico"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.6 13.6 4v4.2c0 3-2.2 5.3-5.6 6.9-3.4-1.6-5.6-3.9-5.6-6.9V4L8 1.6Z" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></span>
+          <h3>四条命，四种颜色</h3>
+          <p>资本金、工程绿、客户蓝、政界红。颜色只出现在仪表、标签与临界反馈里；卡面永远是纸色，把注意力留给台词。</p>
+          <span class="p-tag">COLOR = FACTION</span>
+        </article>
+        <article class="p-card reveal d1">
+          <span class="p-ico"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.4" y="2.4" width="11.2" height="11.2" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v6M5 8h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></span>
+          <h3>纸牌 × 交易终端</h3>
+          <p>卡片用新闻纸的暖色与几何肖像，界面用交易终端的黑、细线与等宽数字。两种质感对撞，就是“人”与“系统”的对抗。</p>
+          <span class="p-tag">PAPER × TERMINAL</span>
+        </article>
+        <article class="p-card reveal d2">
+          <span class="p-ico"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.8" y="3.2" width="8.4" height="9.6" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.3"/><rect x="11.4" y="5.4" width="2.8" height="7.4" rx=".8" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></span>
+          <h3>别把手机放大</h3>
+          <p>桌面端保持 9:16 的“舞台”比例，多出来的空间给新闻流、仪表盘与决策日志，而不是把卡片与字号拉满。</p>
+          <span class="p-tag">STAGE, NOT STRETCH</span>
+        </article>
+      </div>
+
+      <div class="tokens">
+        <div class="reveal">
+          <div class="sub-h"><h3>色板</h3><span>TOKENS / COLOR</span></div>
+          <div class="swatches">
+            <div class="swatch" style="--c:#080A09"><div class="c"></div><div class="m"><span class="n">终端底</span><span class="h">#080A09</span></div></div>
+            <div class="swatch" style="--c:#76B900"><div class="c"></div><div class="m"><span class="n">主绿</span><span class="h">#76B900</span></div></div>
+            <div class="swatch" style="--c:#A6E04C"><div class="c"></div><div class="m"><span class="n">高亮绿</span><span class="h">#A6E04C</span></div></div>
+            <div class="swatch" style="--c:#F2ECDF"><div class="c"></div><div class="m"><span class="n">纸白</span><span class="h">#F2ECDF</span></div></div>
+            <div class="swatch" style="--c:#C9A24A"><div class="c"></div><div class="m"><span class="n">资本</span><span class="h">#C9A24A</span></div></div>
+            <div class="swatch" style="--c:#5689DA"><div class="c"></div><div class="m"><span class="n">客户</span><span class="h">#5689DA</span></div></div>
+            <div class="swatch" style="--c:#D4574A"><div class="c"></div><div class="m"><span class="n">政界 / 临界</span><span class="h">#D4574A</span></div></div>
+            <div class="swatch" style="--c:#111614"><div class="c"></div><div class="m"><span class="n">面板</span><span class="h">#111614</span></div></div>
+            <div class="swatch" style="--c:#17140F"><div class="c"></div><div class="m"><span class="n">纸面墨色</span><span class="h">#17140F</span></div></div>
+          </div>
+        </div>
+        <div class="reveal d1">
+          <div class="sub-h"><h3>字阶</h3><span>TOKENS / TYPE</span></div>
+          <div class="type-spec">
+            <div class="ts-row"><span class="ts-k">DISPLAY</span><span class="ts-v ts-display">拯救英伟达</span></div>
+            <div class="ts-row"><span class="ts-k">QUOTE</span><span class="ts-v ts-quote">“董事会找到你，给了你九十天。”</span></div>
+            <div class="ts-row"><span class="ts-k">BODY</span><span class="ts-v ts-body">正文 13–15px，行高 1.75–1.9；界面内不用纯白，用暖灰降低压迫感。</span></div>
+            <div class="ts-row"><span class="ts-k">LABEL</span><span class="ts-v ts-label">FOUR LIVES / 四条命</span></div>
+            <div class="ts-row"><span class="ts-k">MONO</span><span class="ts-v mono" style="font-size:12px;color:var(--text-2)">DAY 044 · Q2 · 11:42</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="cast reveal">
+        <div class="sub-h"><h3>人物档案</h3><span>CAST / 6 FILES · 同一套印刷语言</span></div>
+        <div class="cast-grid">
+          <article class="cast-card" style="--fc:var(--gold)">
+            <div class="cast-photo"><svg viewBox="0 0 120 84"><use href="#p-jones"/></svg></div>
+            <div class="cast-meta"><span class="cast-file">01 · 董事长</span><b>哈维·琼斯</b><span>董事会主席 · 招你进来，也最后投票</span></div>
+            <span class="cast-bar"></span>
+          </article>
+          <article class="cast-card" style="--fc:var(--gold)">
+            <div class="cast-photo"><svg viewBox="0 0 120 84"><use href="#p-cfo"/></svg></div>
+            <div class="cast-meta"><span class="cast-file">02 · 资本</span><b>科莱特·克雷斯</b><span>临时 CEO 兼 CFO · 数字的守门人</span></div>
+            <span class="cast-bar"></span>
+          </article>
+          <article class="cast-card" style="--fc:#9AA88F">
+            <div class="cast-photo"><svg viewBox="0 0 120 84"><use href="#p-admin"/></svg></div>
+            <div class="cast-meta"><span class="cast-file">03 · 内部</span><b>玛丽</b><span>行政主管 · 皮衣的看守人</span></div>
+            <span class="cast-bar"></span>
+          </article>
+          <article class="cast-card" style="--fc:var(--red)">
+            <div class="cast-photo"><svg viewBox="0 0 120 84"><use href="#p-reg"/></svg></div>
+            <div class="cast-meta"><span class="cast-file">04 · 中国监管</span><b>老周</b><span>反垄断调查组 · 不抬眼看你</span></div>
+            <span class="cast-bar"></span>
+          </article>
+          <article class="cast-card" style="--fc:#6C86A8">
+            <div class="cast-photo"><svg viewBox="0 0 120 84"><use href="#p-official"/></svg></div>
+            <div class="cast-meta"><span class="cast-file">05 · 白宫</span><b>许可官</b><span>出口管制办公室 · 许可证的开关</span></div>
+            <span class="cast-bar"></span>
+          </article>
+          <article class="cast-card" style="--fc:var(--green)">
+            <div class="cast-photo"><svg viewBox="0 0 120 84"><use href="#p-coat"/></svg></div>
+            <div class="cast-meta"><span class="cast-file">06 · 前任</span><b>黄仁勋</b><span>不出场 · 只留下皮衣、短信与 3.6%</span></div>
+            <span class="cast-bar"></span>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="section" id="screens">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="section-no">02</span>
+        <h2 class="section-title">双端界面：手机是全部，桌面是舞台</h2>
+        <p class="section-sub">手机上，一屏即一局；桌面上，中间永远是 9:16 的舞台，两侧承担“信息与后果”。<b>两端看到的是同一张卡，不是两个游戏。</b></p>
+      </div>
+
+      <div class="screen-block">
+        <div class="screen-copy reveal">
+          <h3>手机端 · 全屏竖屏</h3>
+          <p class="sc-lead">单手握持，拇指覆盖卡片下半区；滑动阈值 96px，拖动时只亮起受影响的两条线，不显示正负。安全区、底牌槽与手势条都在同一屏内解决。</p>
+          <ul class="ann-list">
+            <li><span class="ann-num">1</span><span><b>财季进度</b>：13 格 = 1 个财季，固定里程碑与它对齐。</span></li>
+            <li><span class="ann-num">2</span><span><b>四条命</b>：只有图标 + 填充高度，不出现数字；临界时脉冲。</span></li>
+            <li><span class="ann-num">3</span><span><b>卡片拖动区</b>：松手过阈值即确认，拖回中线取消，不可撤销。</span></li>
+            <li><span class="ann-num">4</span><span><b>底牌槽</b>：4 格，第 5 张挤掉最旧，藏在拇指下方。</span></li>
+            <li><span class="ann-num">5</span><span><b>安全区</b>：底部 34px + 手势条，不遮挡选项。</span></li>
+          </ul>
+        </div>
+        <div class="screen-visual reveal d1">
+          <div class="fit" data-w="412" data-h="866">
+            <div class="fit-inner">
+              <div class="phone" aria-hidden="true">
+                <div class="phone-screen">
+                  <div class="island"></div>
+                  <div class="statusbar"><span>9:41</span><span class="sb-r"><span class="sig"><i></i><i></i><i></i><i></i></span>5G<span class="batt"></span></span></div>
+                  <div class="gs gs--phone">
+                    <div class="gs-top">
+                      <div class="gs-clock"><span>DAY 044</span><span class="sep"></span><span>第 2 财季</span></div>
+                      <div class="gs-quarters"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                    </div>
+                    <div class="gs-meters">
+                      <div class="meter" style="--c:var(--gold)"><div class="meter-top"><svg><use href="#i-cap"/></svg><span>资本</span></div><div class="meter-track"><i class="meter-fill" style="--v:24%"></i></div></div>
+                      <div class="meter" style="--c:var(--green)"><div class="meter-top"><svg><use href="#i-eng"/></svg><span>工程</span></div><div class="meter-track"><i class="meter-fill" style="--v:55%"></i></div></div>
+                      <div class="meter" style="--c:var(--blue)"><div class="meter-top"><svg><use href="#i-cus"/></svg><span>客户</span></div><div class="meter-track"><i class="meter-fill" style="--v:61%"></i></div></div>
+                      <div class="meter" style="--c:var(--red)"><div class="meter-top"><svg><use href="#i-pol"/></svg><span>政界</span></div><div class="meter-track"><i class="meter-fill" style="--v:38%"></i></div></div>
+                    </div>
+                    <div class="gs-stage">
+                      <div class="gcard">
+                        <div class="gcard-meta"><span class="gfile">FILE 04 · 2026-11-13</span><span class="gfac" style="--fc:var(--red)"><i></i>中国监管</span></div>
+                        <div class="gcard-figure"><svg class="gcard-portrait"><use href="#p-reg"/></svg></div>
+                        <div class="gcard-name-row"><b class="gcard-name">老周</b><span class="gcard-role">市场监管调查组</span></div>
+                        <p class="gcard-quote">“98 亿罚款。认了，还是退出中国？”</p>
+                        <div class="gcard-choices"><span>← 认罚</span><span>退出 →</span></div>
+                      </div>
+                    </div>
+                    <div class="gs-foot">
+                      <div class="passives">
+                        <span class="pslot is-filled"><svg><use href="#i-cash"/></svg></span>
+                        <span class="pslot is-filled"><svg><use href="#i-doc"/></svg></span>
+                        <span class="pslot"></span>
+                        <span class="pslot"></span>
+                      </div>
+                      <div class="gs-hint">按住卡片 · 左右拖动</div>
+                    </div>
+                  </div>
+                  <div class="homebar"></div>
+                </div>
+              </div>
+            </div>
+            <div class="pins" aria-hidden="true">
+              <span class="pin" style="left:50%;top:8.4%">1</span>
+              <span class="pin" style="left:50%;top:16.4%">2</span>
+              <span class="pin" style="left:93%;top:47%">3</span>
+              <span class="pin" style="left:50%;top:92.2%">4</span>
+              <span class="pin" style="left:50%;top:97.6%">5</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pc-block">
+        <div class="pc-copy reveal">
+          <div class="pc-copy-lead">
+            <h3>桌面端 · 三栏“运营终端”</h3>
+            <p>中间是 9:16 舞台（最大 520px），左侧新闻流提供真实世界的压力，右侧仪表盘与决策日志负责“看见后果”。键盘 ← / → 与鼠标拖拽完全等价。</p>
+          </div>
+          <ul class="pc-ann">
+            <li><span class="ann-num">1</span><span><b>新闻终端</b>：真实标题与引语，只做氛围，不参与数值。</span></li>
+            <li><span class="ann-num">2</span><span><b>舞台</b>：不随窗口拉伸，卡片比例与手机一致。</span></li>
+            <li><span class="ann-num">3</span><span><b>仪表盘</b>：放大版四条线，只标“稳定 / 临界”。</span></li>
+            <li><span class="ann-num">4</span><span><b>决策日志</b>：只回看，不撤回。</span></li>
+            <li><span class="ann-num">5</span><span><b>键盘</b>：← → 选择，R 重开。</span></li>
+          </ul>
+        </div>
+
+        <div class="screen-visual pc-detailed reveal d1">
+          <div class="fit" data-w="1440" data-h="900">
+            <div class="fit-inner">
+              <div class="pc-frame" aria-hidden="true">
+                <div class="pc-chrome">
+                  <span class="pc-dot r"></span><span class="pc-dot y"></span><span class="pc-dot g"></span>
+                  <span class="pc-url">save-nvidia.app / operations</span>
+                </div>
+                <div class="pc-body">
+                  <aside class="pc-aside pc-aside--l">
+                    <div class="panel-h"><span>新闻终端</span><span class="live">LIVE</span></div>
+                    <ul class="feed">
+                      <li><time>11-17<br>05:00</time><p>财报电话会：市场预期营收 1088 亿美元，Q3 指引不含中国数据中心。</p></li>
+                      <li><time>11-13<br>08:12</time><p>中国市场监管总局：反垄断调查仍在进行，未撤案。</p></li>
+                      <li><time>11-12<br>23:40</time><p>董事会：运营、客户承诺与产品路线图“不会中断”。</p></li>
+                      <li><time>11-12<br>20:05</time><p>H200 对华出口获批 75 万块，海关尚未放行。</p></li>
+                    </ul>
+                    <div class="quote-box"><p>“只有蒂姆·库克能接替他。”</p><cite>— 白宫 · 11-12</cite></div>
+                    <div class="panel-f">DEMO DATA · 非实时</div>
+                  </aside>
+
+                  <main class="pc-stage">
+                    <div class="pc-stage-inner">
+                      <div class="gs-top">
+                        <div class="gs-clock"><span>DAY 044</span><span class="sep"></span><span>第 2 财季</span></div>
+                        <div class="gs-quarters"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                      </div>
+                      <div class="gs-meters">
+                        <div class="meter" style="--c:var(--gold)"><div class="meter-top"><svg><use href="#i-cap"/></svg><span>资本</span></div><div class="meter-track"><i class="meter-fill" style="--v:24%"></i></div></div>
+                        <div class="meter" style="--c:var(--green)"><div class="meter-top"><svg><use href="#i-eng"/></svg><span>工程</span></div><div class="meter-track"><i class="meter-fill" style="--v:55%"></i></div></div>
+                        <div class="meter" style="--c:var(--blue)"><div class="meter-top"><svg><use href="#i-cus"/></svg><span>客户</span></div><div class="meter-track"><i class="meter-fill" style="--v:61%"></i></div></div>
+                        <div class="meter" style="--c:var(--red)"><div class="meter-top"><svg><use href="#i-pol"/></svg><span>政界</span></div><div class="meter-track"><i class="meter-fill" style="--v:38%"></i></div></div>
+                      </div>
+                      <div class="pc-card-wrap">
+                        <div class="gcard pc-card">
+                          <div class="gcard-meta"><span class="gfile">FILE 06 · 2026-11-13</span><span class="gfac" style="--fc:#6C86A8"><i></i>白宫</span></div>
+                          <div class="gcard-figure"><svg class="gcard-portrait"><use href="#p-official"/></svg></div>
+                          <div class="gcard-name-row"><b class="gcard-name">许可官</b><span class="gcard-role">出口管制办公室</span></div>
+                          <p class="gcard-quote">“想拿许可证，就在芯片里留个位置给我们。”</p>
+                          <div class="gcard-choices"><span>← 照办</span><span>拒绝 →</span></div>
+                        </div>
+                      </div>
+                      <div class="pc-stage-foot">
+                        <div class="pc-prog"><b style="--v:34%"></b></div>
+                        <div class="pc-stage-meta"><span>第 2 财季 · 第 44 天</span><span>距离董事会表决 46 天</span></div>
+                      </div>
+                      <div class="pc-keys"><kbd>←</kbd><kbd>→</kbd><span>选择</span><kbd>R</kbd><span>重开</span></div>
+                    </div>
+                  </main>
+
+                  <aside class="pc-aside pc-aside--r">
+                    <div class="panel-h"><span>四线仪表盘</span><span>NO NUMBERS</span></div>
+                    <div class="gauge" style="--c:var(--gold)">
+                      <div class="gauge-head"><span>资本</span><span class="st warn">临界</span></div>
+                      <div class="gauge-track is-warn"><b style="--v:24%"></b></div>
+                      <div class="gauge-scale"><span>0</span><span>50</span><span>100</span></div>
+                    </div>
+                    <div class="gauge" style="--c:var(--green)">
+                      <div class="gauge-head"><span>工程</span><span class="st">稳定</span></div>
+                      <div class="gauge-track"><b style="--v:55%"></b></div>
+                      <div class="gauge-scale"><span>0</span><span>50</span><span>100</span></div>
+                    </div>
+                    <div class="gauge" style="--c:var(--blue)">
+                      <div class="gauge-head"><span>客户</span><span class="st">稳定</span></div>
+                      <div class="gauge-track"><b style="--v:61%"></b></div>
+                      <div class="gauge-scale"><span>0</span><span>50</span><span>100</span></div>
+                    </div>
+                    <div class="gauge" style="--c:var(--red)">
+                      <div class="gauge-head"><span>政界</span><span class="st">偏低</span></div>
+                      <div class="gauge-track"><b style="--v:38%"></b></div>
+                      <div class="gauge-scale"><span>0</span><span>50</span><span>100</span></div>
+                    </div>
+                    <div class="panel-h" style="margin-top:4px"><span>决策日志</span><span>不撤回</span></div>
+                    <ul class="log-list">
+                      <li><time>DAY 037</time><span>收起了皮衣</span><span class="g down">▼</span></li>
+                      <li><time>DAY 030</time><span>认罚 98 亿</span><span class="g down">▼</span></li>
+                      <li><time>DAY 023</time><span>拒绝了定制芯片</span><span class="g up">▲</span></li>
+                    </ul>
+                    <div class="panel-f">TERMINAL · DESIGN MOCK</div>
+                  </aside>
+                </div>
+              </div>
+            </div>
+            <div class="pins" aria-hidden="true">
+              <span class="pin" style="left:10.2%;top:8.6%">1</span>
+              <span class="pin" style="left:33%;top:52%">2</span>
+              <span class="pin" style="left:89.6%;top:8.6%">3</span>
+              <span class="pin" style="left:89.6%;top:63%">4</span>
+              <span class="pin" style="left:50%;top:92%">5</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="screen-visual pc-wire reveal d1" aria-label="桌面端三栏布局示意">
+          <div class="wire-top"><i></i><i></i><i></i></div>
+          <div class="wire-body">
+            <div class="wire-col"><div class="wire-block"></div><div class="wire-block"></div><div class="wire-block"></div><div class="wire-block"></div><span>新闻终端</span></div>
+            <div class="wire-col wire-stage"><div class="wire-card"></div></div>
+            <div class="wire-col"><div class="wire-block hl"></div><div class="wire-block"></div><div class="wire-block"></div><div class="wire-block"></div><span>仪表盘 / 日志</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 03 STATES ============ -->
+  <section class="section" id="states">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="section-no">03</span>
+        <h2 class="section-title">交互状态：滑动、临界、死亡</h2>
+        <p class="section-sub">每个状态都必须能截图传播：纸卡、荧光绿、红色的临界边缘，以及一张像报纸一样的死亡结算。<b>数值不出现，后果要出现。</b></p>
+      </div>
+
+      <div class="states-grid">
+        <article class="state reveal">
+          <div class="state-vis">
+            <span class="state-tag">DRAGGING / LEFT</span>
+            <div class="mini-card">
+              <div class="mh"><span>董事长</span><span>哈维·琼斯</span></div>
+              <p class="mq">“董事会找到你，给了你九十天。”</p>
+              <div class="mc"><span class="on">← 我需要时间</span><span>我准备好了 →</span></div>
+            </div>
+          </div>
+          <div class="state-body"><h4>拖动即预览</h4><p>选项文字从卡片边缘滑入；只亮起受影响的两条线，不告诉你方向。</p></div>
+        </article>
+
+        <article class="state reveal d1">
+          <div class="state-vis">
+            <span class="state-tag">CRITICAL / 资本 18</span>
+            <div class="mini-gauges">
+              <div class="mini-g is-warn" style="--c:var(--gold)"><span>资本</span><span class="t"><b style="--v:18%"></b></span></div>
+              <div class="mini-g" style="--c:var(--green)"><span>工程</span><span class="t"><b style="--v:55%"></b></span></div>
+              <div class="mini-g" style="--c:var(--blue)"><span>客户</span><span class="t"><b style="--v:61%"></b></span></div>
+              <div class="mini-g" style="--c:var(--red)"><span>政界</span><span class="t"><b style="--v:38%"></b></span></div>
+            </div>
+            <div class="mini-vign"></div>
+          </div>
+          <div class="state-body"><h4>临界反馈</h4><p>≤20 或 ≥80：图标闪烁 + 心跳音；≤10 或 ≥90：屏幕边缘泛红/泛绿。</p></div>
+        </article>
+
+        <article class="state reveal d2">
+          <div class="state-vis">
+            <span class="state-tag">DEATH / NEWSPAPER</span>
+            <div class="mini-news">
+              <div class="mn-top"><span>号外</span><span>2026.11.13</span><span>第 001 期</span></div>
+              <div class="mn-mast">硅谷日报<i>SILICON DAILY</i></div>
+              <div class="mn-rule"></div>
+              <div class="mn-grid">
+                <div><h5>你被自己的股价解雇了</h5><p>董事会只开了十一分钟。他们甚至没让你坐下。</p></div>
+                <div class="mn-photo"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M3 31 11 23 17 26 27 13 37 17" fill="none" stroke="#8E2F25" stroke-width="2"/><circle cx="27" cy="13" r="2.2" fill="#8E2F25"/></svg></div>
+              </div>
+              <div class="mn-foot"><span>任期 237 天</span><span class="stamp">任期结束</span></div>
+            </div>
+          </div>
+          <div class="state-body"><h4>死亡结算</h4><p>报纸头版 + 任期天数 + 一句死因。只保留“再来一任”，不保留读档。</p></div>
+        </article>
+
+        <article class="state reveal d3">
+          <div class="state-vis">
+            <span class="state-tag">PASSIVE / SAVE</span>
+            <div class="mini-slot">
+              <span class="slot"><svg width="18" height="18" aria-hidden="true"><use href="#i-cash"/></svg></span>
+              <span class="txt"><b>现金储备</b>资本归零时回 40<br>一次性 · 触发即消失</span>
+            </div>
+          </div>
+          <div class="state-body"><h4>底牌触发</h4><p>4 个槽位，第 5 张挤掉最旧的。触发时一道电流声，救你一次也提醒你一次。</p></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 04 DEMO ============ -->
+  <section class="section" id="demo">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="section-no">04</span>
+        <h2 class="section-title">试玩样张：拖一下，看它怎么死</h2>
+        <p class="section-sub">这是一个真实可交互的原型切片：拖动卡片或按 <b>← / →</b>，四条线会当场变化；任意一条触 0 或 100，或者请老黄上台，都会立刻进入结局。<b>数值只在右侧调试区出现，游戏界面里永远没有。</b></p>
+      </div>
+
+      <div class="demo-wrap reveal">
+        <div class="demo-head">
+          <div><h3>临时 CEO · 第一天</h3><p>5 张卡循环，拖动阈值 96px 等效；键盘 ← → 选择，R 重开。</p></div>
+          <span class="demo-badge">INTERACTIVE SLICE</span>
+        </div>
+
+        <div class="demo-shell">
+          <div class="demo-col">
+            <div class="demo-game" id="demo-game">
+              <div class="gs gs--demo" id="gs-demo">
+                <div class="gs-top">
+                  <div class="gs-clock"><span id="d-day">DAY 001</span><span class="sep"></span><span id="d-quarter">第 1 财季</span></div>
+                  <div class="gs-quarters" id="d-ticks"><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                </div>
+                <div class="gs-meters">
+                  <div class="meter" data-meter="capital" style="--c:var(--gold)"><div class="meter-top"><svg><use href="#i-cap"/></svg><span>资本</span></div><div class="meter-track"><i class="meter-fill" style="--v:42%"></i></div></div>
+                  <div class="meter" data-meter="engineering" style="--c:var(--green)"><div class="meter-top"><svg><use href="#i-eng"/></svg><span>工程</span></div><div class="meter-track"><i class="meter-fill" style="--v:55%"></i></div></div>
+                  <div class="meter" data-meter="customers" style="--c:var(--blue)"><div class="meter-top"><svg><use href="#i-cus"/></svg><span>客户</span></div><div class="meter-track"><i class="meter-fill" style="--v:50%"></i></div></div>
+                  <div class="meter" data-meter="politics" style="--c:var(--red)"><div class="meter-top"><svg><use href="#i-pol"/></svg><span>政界</span></div><div class="meter-track"><i class="meter-fill" style="--v:45%"></i></div></div>
+                </div>
+                <div class="gs-stage">
+                  <div class="gcard" id="d-card">
+                    <div class="gcard-meta"><span class="gfile" id="d-file">FILE 00 · 2026-11-12</span><span class="gfac" id="d-fac" style="--fc:var(--gold)"><i></i><span id="d-fac-name">董事长</span></span></div>
+                    <div class="gcard-figure"><svg class="gcard-portrait" aria-hidden="true"><use id="d-portrait" href="#p-jones"/></svg></div>
+                    <div class="gcard-name-row"><b class="gcard-name" id="d-name">哈维·琼斯</b><span class="gcard-role" id="d-role">董事会主席</span></div>
+                    <p class="gcard-quote" id="d-quote">“董事会找到你，给了你九十天。九十天后，他们会再投一次票。”</p>
+                    <div class="gcard-choices"><span>← 我需要时间</span><span>我准备好了 →</span></div>
+                  </div>
+                  <span class="gchoice gchoice--l" id="d-choice-left">← 我需要时间</span>
+                  <span class="gchoice gchoice--r" id="d-choice-right">我准备好了 →</span>
+                </div>
+                <div class="gs-foot">
+                  <div class="passives">
+                    <span class="pslot is-filled"><svg><use href="#i-cash"/></svg></span>
+                    <span class="pslot is-filled"><svg><use href="#i-doc"/></svg></span>
+                    <span class="pslot"></span>
+                    <span class="pslot"></span>
+                  </div>
+                  <div class="gs-hint">拖动卡片 · 或按 ← →</div>
+                </div>
+              </div>
+
+              <div class="demo-death" id="demo-death" hidden>
+                <div class="death-news">
+                  <div class="mn-top"><span>号外</span><span>2026.11.13</span><span>第 001 期</span></div>
+                  <div class="mn-mast">硅谷日报<i>SILICON DAILY</i></div>
+                  <div class="mn-rule"></div>
+                  <div class="mn-grid">
+                    <div>
+                      <h5 id="d-death-title">你被自己的股价解雇了</h5>
+                      <p id="d-death-line">董事会只开了十一分钟。他们甚至没让你坐下。</p>
+                    </div>
+                    <div class="mn-photo"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M3 31 11 23 17 26 27 13 37 17" fill="none" stroke="#8E2F25" stroke-width="2"/><circle cx="27" cy="13" r="2.2" fill="#8E2F25"/></svg></div>
+                  </div>
+                  <div class="mn-foot"><span>任期 <b id="d-death-days">0</b> 天</span><span class="stamp">任期结束</span></div>
+                  <button class="btn btn--primary" id="d-restart2">再来一任</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="demo-bar">
+              <button class="dbtn" id="d-left-btn" aria-label="选择左侧选项">← 左滑</button>
+              <button class="dbtn" id="d-right-btn" aria-label="选择右侧选项">右滑 →</button>
+              <button class="dbtn dbtn--reset" id="d-reset">重新开始</button>
+            </div>
+            <p class="demo-note">提示：用鼠标按住卡片向左 / 右拖动，松手即确认；也可以直接点按钮。</p>
+          </div>
+
+          <aside class="demo-side">
+            <div class="readout">
+              <div class="ro-head">调试读数 <span>DESIGN ONLY</span></div>
+              <div class="ro-row"><span><i class="pt" style="--c:var(--gold)"></i>资本</span><b id="r-capital">42</b></div>
+              <div class="ro-row"><span><i class="pt" style="--c:var(--green)"></i>工程</span><b id="r-engineering">55</b></div>
+              <div class="ro-row"><span><i class="pt" style="--c:var(--blue)"></i>客户</span><b id="r-customers">50</b></div>
+              <div class="ro-row"><span><i class="pt" style="--c:var(--red)"></i>政界</span><b id="r-politics">45</b></div>
+              <div class="ro-row"><span>天数</span><b id="r-day">1</b></div>
+            </div>
+            <div class="logbox">
+              <div class="ro-head">决策日志 <span>不撤回</span></div>
+              <ol id="d-log"><li class="empty">还没有决策。</li></ol>
+            </div>
+            <p class="demo-note">四个数字只存在于这个调试面板；游戏界面里，玩家只能“感觉”到危险。</p>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 05 RULES ============ -->
+  <section class="section" id="rules">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="section-no">05</span>
+        <h2 class="section-title">适配规则：同一套规则，三种输入</h2>
+        <p class="section-sub">断点只决定“信息放在哪里”，不改变卡片比例、字号层级与数值规则。手机、平板、桌面共享同一套设计变量。</p>
+      </div>
+
+      <div class="rules-wrap reveal">
+        <table class="rules">
+          <thead><tr><th>断点</th><th>布局</th><th>舞台宽度</th><th>输入</th><th>关键处理</th></tr></thead>
+          <tbody>
+            <tr><td>≥ 1280</td><td><b>三栏</b>：新闻 296 / 舞台 / 仪表 312</td><td>520</td><td>鼠标拖拽 + ← →</td><td>两侧面板常驻；舞台垂直居中，不随窗口缩放</td></tr>
+            <tr><td>1024–1279</td><td><b>两栏</b>：舞台 + 仪表</td><td>480</td><td>鼠标 + 键盘</td><td>新闻折叠为顶部单行 ticker；日志收进抽屉</td></tr>
+            <tr><td>768–1023</td><td><b>单栏舞台</b>，两侧收成抽屉</td><td>440</td><td>触摸 + 键盘</td><td>仪表压缩为舞台上方四条细线；底牌槽固定在舞台下沿</td></tr>
+            <tr><td>&lt; 768</td><td><b>全屏竖屏</b>，100dvh</td><td>100vw</td><td>触摸滑动</td><td>安全区 env(safe-area-inset-*)；底牌槽上移 34px；无横向滚动</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="rules-desc reveal">说明：桌面端最大舞台宽度 520px，是“卡片清晰 + 两侧信息可读”的平衡点；再宽就会变成把手机放大，失去终端感。</p>
+      <p class="rules-scroll-hint">← 左右滑动查看完整表格 →</p>
+
+      <div class="rule-cards">
+        <div class="rule-card reveal"><h4><i></i>比例优先</h4><p>卡片永远是 9:16 的舞台，不做横向拉伸；宽屏多出的空间给信息面板，不给字号。</p></div>
+        <div class="rule-card reveal d1"><h4><i></i>双输入等价</h4><p>触摸滑动、鼠标拖拽、键盘 ← → 映射同一个动作；按钮是给键盘与辅助技术的兜底。</p></div>
+        <div class="rule-card reveal d2"><h4><i></i>安全与性能</h4><p>安全区内边距、44px 触控目标、100dvh；纯 CSS/SVG，无图片资源，首屏 &lt; 100KB。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 06 SPEC ============ -->
+  <section class="section" id="spec">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="section-no">06</span>
+        <h2 class="section-title">组件与工程规范</h2>
+        <p class="section-sub">设计变量直接写成 CSS 自定义属性；组件只有 6 个，能拼出全部界面。颜色从不单独承载信息，图标与文字永远同时出现。</p>
+      </div>
+
+      <div class="spec-grid">
+        <div class="code-box reveal">
+          <div class="code-head"><span>:root / DESIGN TOKENS</span><span class="dots"><i></i><i></i><i></i></span></div>
+<pre class="code"><span class="c">/* 颜色 */</span>
+<span class="k">--bg</span>: <span class="v">#080A09</span>;   <span class="c">/* 终端底 */</span>
+<span class="k">--paper</span>: <span class="v">#F2ECDF</span>; <span class="c">/* 卡片纸色 */</span>
+<span class="k">--ink</span>: <span class="v">#17140F</span>;   <span class="c">/* 纸面墨色 */</span>
+<span class="k">--green</span>: <span class="v">#76B900</span>; <span class="c">/* 主绿 · UI 强调 */</span>
+<span class="k">--gold</span>: <span class="v">#C9A24A</span>;  <span class="c">/* 资本 */</span>
+<span class="k">--blue</span>: <span class="v">#5689DA</span>;  <span class="c">/* 客户 */</span>
+<span class="k">--red</span>: <span class="v">#D4574A</span>;   <span class="c">/* 政界 / 临界 */</span>
+
+<span class="c">/* 尺度 */</span>
+<span class="k">--r-s</span>: <span class="v">8px</span>; <span class="k">--r-m</span>: <span class="v">14px</span>; <span class="k">--r-l</span>: <span class="v">22px</span>;
+<span class="k">--stage-max</span>: <span class="v">520px</span>;  <span class="c">/* 桌面舞台 */</span>
+<span class="k">--wrap</span>: <span class="v">1240px</span>;
+
+<span class="c">/* 动效 */</span>
+<span class="k">--ease</span>: <span class="v">cubic-bezier(.2,.7,.2,1)</span>;
+<span class="c">/* 卡片 340ms · 结算 550ms · 死亡 1200ms */</span></pre>
+        </div>
+
+        <div class="reveal d1">
+          <div class="sub-h"><h3>六个组件</h3><span>COMPONENTS</span></div>
+          <div class="comp-list">
+            <div class="comp-row"><span class="comp-name">METER</span><span class="comp-demo">
+              <span style="display:inline-flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)"><svg width="11" height="11" style="color:var(--gold)"><use href="#i-cap"/></svg>资本</span>
+              <span style="width:70px;height:4px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;display:inline-block"><i style="display:block;width:42%;height:100%;background:var(--gold);border-radius:99px"></i></span>
+            </span></div>
+            <div class="comp-row"><span class="comp-name">CARD</span><span class="comp-demo"><span style="width:44px;height:30px;background:var(--paper);border-radius:4px;display:inline-block"></span><span style="font-size:10px;color:var(--muted)">纸色 + 几何肖像 + 一句台词</span></span></div>
+            <div class="comp-row"><span class="comp-name">CHOICE</span><span class="comp-demo"><span style="font-size:10px;color:var(--ink);background:var(--paper);border-radius:999px;padding:4px 9px">← 我需要时间</span></span></div>
+            <div class="comp-row"><span class="comp-name">PASSIVE</span><span class="comp-demo"><span style="width:22px;height:28px;border:1px solid rgba(166,224,76,.5);border-radius:5px;background:rgba(118,185,0,.1);display:grid;place-items:center;color:var(--green-hi)"><svg width="11" height="11"><use href="#i-shield"/></svg></span><span style="font-size:10px;color:var(--muted)">4 槽，第 5 张挤最旧</span></span></div>
+            <div class="comp-row"><span class="comp-name">STAMP</span><span class="comp-demo"><span class="stamp" style="font-size:9px">任期结束</span></span></div>
+            <div class="comp-row"><span class="comp-name">KBD</span><span class="comp-demo"><kbd>←</kbd><kbd>→</kbd><span style="font-size:10px;color:var(--muted)">与拖拽等价</span></span></div>
+          </div>
+
+          <ul class="a11y">
+            <li>对比度：纸面墨色 / 纸白 ≈ 13:1；主绿在深底上 ≥ 6:1；临界红仅用于强调，不单独承载信息。</li>
+            <li>键盘：舞台聚焦后 ← / → 选择，R 重开，Esc 收起抽屉；焦点环 2px 主绿。</li>
+            <li>屏幕阅读器：卡片台词用 aria-live 播报；数值变化以“资本趋紧 / 资本临界”文字播报，不播报具体数字。</li>
+            <li>减少动效：prefers-reduced-motion 下关闭脉冲、倾斜与滚动动画，仅保留淡入。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="f-brand"><span class="mark" aria-hidden="true"></span>拯救英伟达 · 网页视觉方案 v0.2</div>
+    <p>视觉与交互提案，非最终产品。本作是<b>架空推演</b>，不是真实新闻；页面内新闻、台词、数值均为设计演练数据，与 NVIDIA 及现实人物、事件无关。</p>
+    <div class="f-links"><a href="#top">TOP</a><a href="#demo">DEMO</a><a href="prototype/index.html">PROTOTYPE</a></div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

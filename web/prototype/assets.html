@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>美术坑位 · 拯救英伟达原型 v0.1</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23080A09'/%3E%3Crect x='6' y='6' width='20' height='20' rx='4' fill='none' stroke='%2376B900' stroke-width='2'/%3E%3Cpath d='M16 10v12M10 16h12' stroke='%23A6E04C' stroke-width='2'/%3E%3C/svg%3E">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="styles.css">
+<style>
+  body{overflow:auto;background:var(--bg)}
+  .asset-page{width:100%;max-width:1240px;margin:0 auto;padding:0 clamp(16px,4vw,36px) 60px}
+  .asset-hero{padding:clamp(28px,4vw,48px) 0 20px;border-bottom:1px solid var(--line)}
+  .asset-hero h1{font-size:clamp(30px,4vw,48px);letter-spacing:-.02em;font-weight:900;line-height:1.08;margin:12px 0 10px}
+  .asset-hero h1 em{font-style:normal;color:var(--green-hi)}
+  .asset-hero p{max-width:72ch;font-size:13px;line-height:1.9;color:var(--text-2)}
+  .asset-hero b{color:var(--text)}
+  .asset-stats{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .asset-stats span{border:1px solid var(--line-2);border-radius:999px;padding:6px 11px;font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--text-2)}
+  .asset-stats span b{color:var(--green-hi)}
+  .asset-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:18px 0 8px}
+  .mini-btn{padding:8px 12px;border:1px solid var(--line-2);border-radius:8px;font-size:11px;color:var(--text-2);background:rgba(255,255,255,.02);transition:border-color .2s,color .2s}
+  .mini-btn:hover{border-color:rgba(166,224,76,.5);color:var(--green-hi)}
+  .mini-btn.is-on{border-color:rgba(166,224,76,.7);color:var(--green-hi);background:rgba(118,185,0,.08)}
+  .asset-toolbar .spacer{flex:1}
+  .asset-toolbar .hint{font-family:var(--mono);font-size:9px;color:var(--muted)}
+
+  .asset-section{margin-top:clamp(28px,4vw,44px)}
+  .asset-section-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:16px}
+  .asset-section-head h2{font-size:16px;font-weight:800;letter-spacing:.02em}
+  .asset-section-head span{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--muted)}
+  .asset-char{margin:0 0 22px;border:1px solid var(--line);border-radius:14px;padding:14px;background:rgba(255,255,255,.015)}
+  .asset-char-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .asset-char-head b{font-family:var(--serif);font-size:18px}
+  .asset-char-head span{font-family:var(--mono);font-size:9px;letter-spacing:.08em;color:var(--muted)}
+  .asset-char-head em{font-style:normal;margin-left:auto;font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;color:var(--green-hi);border:1px solid rgba(118,185,0,.3);border-radius:5px;padding:2px 6px}
+  .asset-states{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  .asset-slot{position:relative;margin:0;background:rgba(0,0,0,.18);border:1px solid var(--line);border-radius:10px;padding:6px;min-width:0}
+  .asset-slot .shot{position:relative;display:block;overflow:hidden;border-radius:6px;background:#161A15}
+  .asset-slot img{display:block;width:100%;height:auto;object-fit:cover}
+  .asset-slot .safe-guide{position:absolute;display:none;border:1px dashed rgba(166,224,76,.95);pointer-events:none;border-radius:2px}
+  body.show-safe .asset-slot .safe-guide{display:block}
+  .asset-slot figcaption{display:grid;gap:2px;padding:8px 3px 2px}
+  .asset-slot figcaption b{font-size:11px;font-weight:650}
+  .asset-slot figcaption span{font-family:var(--mono);font-size:8px;letter-spacing:.04em;color:var(--muted);word-break:break-all}
+  .asset-slot figcaption em{font-style:normal;font-family:var(--mono);font-size:8px;color:var(--green-hi)}
+  .asset-slot .slot-badge{display:inline-flex;position:absolute;left:9px;top:9px;bottom:auto;z-index:4;font-size:7px;padding:2px 5px}
+  .misc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .misc-grid .asset-slot img{aspect-ratio:16 / 9}
+  .misc-grid .asset-slot[data-kind="evidence"] img{aspect-ratio:3 / 2}
+  .misc-grid .asset-slot[data-kind="news"] img{aspect-ratio:4 / 3}
+  .asset-note{margin-top:10px;font-size:10.5px;line-height:1.8;color:var(--text-2)}
+
+  .guide{margin-top:clamp(30px,4vw,46px);border:1px solid var(--line);border-radius:16px;padding:clamp(18px,3vw,28px);background:linear-gradient(180deg,rgba(255,255,255,.02),transparent)}
+  .guide h2{font-size:18px;margin-bottom:12px}
+  .guide ol{margin:0;padding-left:20px;display:grid;gap:8px}
+  .guide li{font-size:12px;line-height:1.8;color:var(--text-2)}
+  .guide code{font-family:var(--mono);font-size:10.5px;color:var(--green-hi);background:rgba(118,185,0,.08);border:1px solid rgba(118,185,0,.18);border-radius:4px;padding:1px 5px}
+  .spec-table{width:100%;border-collapse:collapse;margin-top:16px;font-size:11.5px}
+  .spec-table th,.spec-table td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  .spec-table th{font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;color:var(--muted);font-weight:500}
+  .spec-table td:first-child{font-family:var(--mono);font-size:10px;color:var(--green-hi);white-space:nowrap}
+  .guide p{font-size:12px;line-height:1.85;color:var(--text-2);margin-top:10px}
+  .guide b{color:var(--text)}
+  .footer-note{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;font-size:10px;color:var(--muted);font-family:var(--mono);letter-spacing:.06em}
+  .asset-hero p{font-size:14.5px;line-height:1.95}
+  .asset-section-head h2{font-size:18px}
+  .asset-section-head span{font-size:10px}
+  .asset-char-head b{font-size:20px}
+  .asset-char-head span{font-size:10px}
+  .asset-char-head em{font-size:9.5px}
+  .asset-slot figcaption b{font-size:12.5px}
+  .asset-slot figcaption span{font-size:9px}
+  .asset-slot figcaption em{font-size:9px}
+  .asset-slot .slot-badge{font-size:8px;padding:3px 6px}
+  .guide li{font-size:13px}
+  .guide p{font-size:13px}
+  .spec-table{font-size:12.5px}
+  .spec-table th{font-size:9.5px}
+  .spec-table td:first-child{font-size:11px}
+  .asset-note{font-size:12px}
+  .asset-toolbar .hint{font-size:10px}
+  .mini-btn{font-size:12px;padding:9px 13px}
+  @media (max-width:760px){
+    .asset-states{grid-template-columns:1fr}
+    .misc-grid{grid-template-columns:1fr}
+    .asset-hero h1{font-size:30px}
+    .asset-slot .slot-badge{font-size:6px}
+  }
+</style>
+</head>
+<body>
+<div class="proto-top">
+  <a class="proto-brand" href="index.html"><span class="mark"></span>拯救英伟达 <small>ASSET SLOTS</small></a>
+  <nav class="proto-nav">
+    <a href="index.html">试玩原型</a>
+    <a href="../index.html">视觉方案</a>
+    <span class="proto-ver">29 SLOTS · v0.1</span>
+  </nav>
+</div>
+
+<main class="asset-page">
+  <header class="asset-hero">
+    <span class="kicker">ART SLOTS · REPLACEABLE ASSETS</span>
+    <h1>美术坑位<em>。</em></h1>
+    <p>这里是原型需要的全部素材槽位。每个槽位是一张<b>固定画布</b>；当前已接入正式美术并生成 WebP。<b>人物每人 3 个表情状态</b>，黄仁勋不出场，只有皮衣、信件、GTC 剪影三种素材。替换时把同名 PNG 放进对应目录，再运行 <code>assets/tools/optimize_assets.py</code> 生成 WebP。</p>
+    <div class="asset-stats">
+      <span>29 个槽位</span>
+      <span>角色 <b>24</b>（7 人 × 3 表情 + 黄仁勋 3 素材）</span>
+      <span>场景 <b>3</b></span>
+      <span>证据 <b>1</b></span>
+      <span>报纸配图 <b>1</b></span>
+      <span id="replace-stat">已替换 <b>0</b> / 29</span>
+    </div>
+    <div class="asset-toolbar">
+      <button class="mini-btn" id="safe-toggle">显示安全区</button>
+      <button class="mini-btn" id="reload-btn">刷新素材</button>
+      <span class="spacer"></span>
+      <span class="hint">正式图：WebP（优先）· PNG 为源文件/回退</span>
+      <a class="mini-btn" href="assets/manifest.json" target="_blank" rel="noopener">manifest.json ↗</a>
+    </div>
+  </header>
+
+  <section class="asset-section" id="characters-section">
+    <div class="asset-section-head"><h2>角色素材</h2><span>CHARACTERS · 1200 × 840 · SAFE 80px · 焦点 center 36%</span></div>
+    <div id="characters"></div>
+  </section>
+
+  <section class="asset-section" id="misc-section">
+    <div class="asset-section-head"><h2>场景 / 证据 / 报纸</h2><span>SCENES · EVIDENCE · NEWS</span></div>
+    <div class="misc-grid" id="misc"></div>
+    <p class="asset-note">场景用于标题背景与事件空镜；证据图用于首屏「EVIDENCE 01 · 皮衣」；报纸配图用于结局头版。当前 29 个槽位均已接入正式美术；替换同名 PNG 后重新生成 WebP 即可。</p>
+  </section>
+
+  <section class="guide">
+    <h2>替换步骤</h2>
+    <ol>
+      <li>选一个槽位，记下它的 <code>file</code> 路径（例：<code>characters/jones-neutral</code>）。</li>
+      <li>按画布尺寸作画：角色 1200×840、场景 1600×900、证据 1200×800、报纸 800×600；主体留在安全区内。</li>
+      <li>导出 <b>PNG（源文件，透明或带底都可）</b>，命名为 <code>jones-neutral.png</code> 这类同名文件，放到 <code>assets/characters/</code> 对应目录。</li>
+      <li>运行 <code>python assets/tools/optimize_assets.py</code> 生成同名 WebP；刷新页面。加载器按 <code>webp → png → jpg → jpeg → svg</code> 查找，WebP 会被优先加载。</li>
+      <li>要换表情，就替换 <code>-neutral / -pressured / -pleased</code> 三张；原型会在选择后自动切到反应表情。</li>
+    </ol>
+
+    <table class="spec-table">
+      <thead><tr><th>组</th><th>尺寸 / 安全区</th><th>用途</th><th>状态 / 说明</th></tr></thead>
+      <tbody>
+        <tr><td>角色</td><td>1200 × 840 · safe 80</td><td>卡片立绘、标题卡</td><td>neutral 平静 / pressured 施压 / pleased 满意；焦点在画布上方 36%</td></tr>
+        <tr><td>场景</td><td>1600 × 900 · safe 80</td><td>标题背景、事件空镜</td><td>办公室 / 董事会 / GTC</td></tr>
+        <tr><td>证据</td><td>1200 × 800 · safe 60</td><td>标题页证据照片</td><td>皮衣挂在椅背，3:2</td></tr>
+        <tr><td>报纸</td><td>800 × 600 · safe 40</td><td>结局头版配图</td><td>半调/黑白优先，4:3</td></tr>
+      </tbody>
+    </table>
+
+    <p><b>风格建议：</b>延续 v0.2 的「印刷档案」——半调网点、套色错位、纸边剪裁、档案标签。人物可以半身或胸像，视线默认看向镜头；三张表情只改眉眼/嘴角/肩线，不要改构图与光位，切换时才不会跳。</p>
+    <p><b>当前状态：</b>29 张正式美术已生成 WebP（约 4 MB，PNG 源文件 42 MB 保留作回退）；占位 SVG 仍保留，作为最终兜底。替换 PNG 后重跑 <code>assets/tools/optimize_assets.py</code> 即可更新 WebP。</p>
+  </section>
+
+  <div class="footer-note">
+    <span>拯救英伟达 · 原型 v0.1 · 美术坑位清单</span>
+    <span><a href="index.html">← 回去试玩</a> · <a href="../index.html">视觉方案</a></span>
+  </div>
+</main>
+
+<script src="assets/manifest.js"></script>
+<script src="asset-loader.js"></script>
+<script>
+(function () {
+  'use strict';
+  var M = window.ART_SLOTS;
+  if (!M || !window.Asset) return;
+  var $ = function (id) { return document.getElementById(id); };
+  var SIZE = {
+    characters: { w: 1200, h: 840, safe: 80 },
+    scenes: { w: 1600, h: 900, safe: 80 },
+    evidence: { w: 1200, h: 800, safe: 60 },
+    news: { w: 800, h: 600, safe: 40 }
+  };
+  var total = 0;
+  var replaced = 0;
+
+  function slotFigure(base, titleText, subText, kind) {
+    var meta = window.Asset.info.get(base) || {};
+    var size = meta.size || SIZE.characters;
+    var safeX = (size.safe / size.w * 100).toFixed(2) + '%';
+    var safeY = (size.safe / size.h * 100).toFixed(2) + '%';
+    var fig = document.createElement('figure');
+    fig.className = 'asset-slot';
+    if (kind) fig.dataset.kind = kind;
+    fig.dataset.assetWrap = '';
+    fig.innerHTML =
+      '<span class="shot"><img alt="" loading="lazy"><span class="safe-guide" style="inset:' + safeY + ' ' + safeX + '"></span></span>' +
+      '<span class="slot-badge" data-slot-badge></span>' +
+      '<figcaption><b>' + titleText + '</b><span>' + base + '</span><em>' + subText + '</em></figcaption>';
+    var img = fig.querySelector('img');
+    img.dataset.slot = base;
+    window.Asset.set(img, base).then(function () {
+      total++;
+      if (img.dataset.placeholder === '0') replaced++;
+      $('replace-stat').innerHTML = '已替换 <b>' + replaced + '</b> / ' + total;
+    });
+    return fig;
+  }
+
+  var charsRoot = $('characters');
+  M.characters.forEach(function (c) {
+    var wrap = document.createElement('div');
+    wrap.className = 'asset-char';
+    wrap.innerHTML = '<div class="asset-char-head"><b>' + c.name + '</b><span>' + c.role + ' · ' + c.faction + '</span><em>' + c.id + '</em></div>';
+    var states = document.createElement('div');
+    states.className = 'asset-states';
+    c.states.forEach(function (s) {
+      var stateName = { neutral: '平静', pressured: '施压', pleased: '满意', jacket: '皮衣', letter: '信件', stage: 'GTC 剪影' }[s.state] || s.state;
+      var sub = s.state + ' · ' + stateName + ' · 1200×840';
+      states.appendChild(slotFigure(s.file, s.label, sub));
+    });
+    wrap.appendChild(states);
+    charsRoot.appendChild(wrap);
+  });
+
+  var miscRoot = $('misc');
+  M.misc.forEach(function (m) {
+    var size = SIZE[m.group] || SIZE.characters;
+    var sub = m.group + ' · ' + size.w + '×' + size.h;
+    miscRoot.appendChild(slotFigure(m.file, m.name, sub, m.group));
+  });
+
+  $('safe-toggle').addEventListener('click', function () {
+    document.body.classList.toggle('show-safe');
+    this.classList.toggle('is-on', document.body.classList.contains('show-safe'));
+  });
+  $('reload-btn').addEventListener('click', function () { location.reload(); });
+})();
+</script>
+</body>
+</html>

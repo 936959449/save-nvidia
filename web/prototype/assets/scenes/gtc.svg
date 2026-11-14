@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+<defs><pattern id="dots" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="1.4" fill="#F2ECDF" opacity=".12"/></pattern></defs>
+<rect width="1600" height="900" fill="#1B211D"/>
+<rect width="1600" height="900" fill="url(#dots)"/>
+<line x1="200" y1="0" x2="200" y2="900" stroke="#FFFFFF" stroke-opacity=".05"/><line x1="400" y1="0" x2="400" y2="900" stroke="#FFFFFF" stroke-opacity=".05"/><line x1="600" y1="0" x2="600" y2="900" stroke="#FFFFFF" stroke-opacity=".05"/><line x1="800" y1="0" x2="800" y2="900" stroke="#FFFFFF" stroke-opacity=".05"/><line x1="1000" y1="0" x2="1000" y2="900" stroke="#FFFFFF" stroke-opacity=".05"/><line x1="1200" y1="0" x2="1200" y2="900" stroke="#FFFFFF" stroke-opacity=".05"/><line x1="1400" y1="0" x2="1400" y2="900" stroke="#FFFFFF" stroke-opacity=".05"/><line x1="0" y1="150" x2="1600" y2="150" stroke="#FFFFFF" stroke-opacity=".05"/><line x1="0" y1="300" x2="1600" y2="300" stroke="#FFFFFF" stroke-opacity=".05"/><line x1="0" y1="450" x2="1600" y2="450" stroke="#FFFFFF" stroke-opacity=".05"/><line x1="0" y1="600" x2="1600" y2="600" stroke="#FFFFFF" stroke-opacity=".05"/><line x1="0" y1="750" x2="1600" y2="750" stroke="#FFFFFF" stroke-opacity=".05"/>
+<rect x="80" y="80" width="1440" height="740" fill="none" stroke="#F2ECDF" stroke-opacity=".28" stroke-width="2" stroke-dasharray="10 10"/>
+<path d="M80 80 l34 0 M80 80 l0 34" stroke="#A6E04C" stroke-width="2" opacity=".8"/><path d="M1520 80 l-34 0 M1520 80 l0 34" stroke="#A6E04C" stroke-width="2" opacity=".8"/><path d="M80 820 l34 0 M80 820 l0 -34" stroke="#A6E04C" stroke-width="2" opacity=".8"/><path d="M1520 820 l-34 0 M1520 820 l0 -34" stroke="#A6E04C" stroke-width="2" opacity=".8"/>
+<text x="80" y="56" font-family="Consolas, Cascadia Mono, monospace" font-size="18" letter-spacing="4" fill="#A6E04C">PLACEHOLDER · SCENE</text>
+<text x="1520" y="56" text-anchor="end" font-family="Consolas, Cascadia Mono, monospace" font-size="16" letter-spacing="2" fill="#8B958A">scenes/gtc</text>
+<text x="80" y="864" font-family="Consolas, Cascadia Mono, monospace" font-size="15" letter-spacing="1" fill="#8B958A">1600 × 900 px · safe 80px</text>
+<text x="1520" y="864" text-anchor="end" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="15" fill="#8B958A">绿色背光、巨大屏幕、台下只留黑色人海。</text>
+<rect x="140" y="160" width="1320" height="580" fill="none" stroke="#8B958A" stroke-width="2" stroke-dasharray="6 8" opacity=".5"/>
+<text x="800" y="430" text-anchor="middle" font-family="Microsoft YaHei, PingFang SC, Noto Sans SC, sans-serif" font-size="52" font-weight="700" fill="#F2ECDF" opacity=".9">GTC 舞台</text>
+<text x="800" y="490" text-anchor="middle" font-family="Consolas, Cascadia Mono, monospace" font-size="22" fill="#A6E04C" letter-spacing="3">SCENE / BACKGROUND</text>
+<text x="800" y="542" text-anchor="middle" font-family="Consolas, Cascadia Mono, monospace" font-size="16" fill="#8B958A">1600×900 · 16:9 · safe 80px</text>
+</svg>

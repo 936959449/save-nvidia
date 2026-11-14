@@ -1,0 +1,21 @@
+# OS / 编辑器
+Thumbs.db
+.DS_Store
+*.log
+
+# 本地美术工作目录与源画稿（不参与网页部署；如需版本管理请用 Git LFS 或单独仓库）
+art-assets/
+拯救英伟达_美术素材_v1_assets/
+拯救英伟达_美术素材_v1.miora
+.workbuddy/
+
+# PNG 源文件：网页优先加载 WebP；源文件保留在本地
+# 若希望把 PNG 一并提交，删除下面这行即可（仓库体积会增加约 42 MB）
+web/prototype/assets/**/*.png
+
+# 临时测试产物
+web/prototype/.check/
+web/prototype/.preview/
+web/prototype/.intro/
+web/prototype/.*.mjs
+web/prototype/.serverpid
