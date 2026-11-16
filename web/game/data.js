@@ -1,6 +1,12 @@
 /* ============================================================
    拯救英伟达 · v1.0 — 内容数据
    角色元数据来自 assets/manifest.js；这里只放决策卡、结局与底牌。
+   卡片结构：
+     kind: opening | milestone | arc | random | crisis
+     arc : 所属弧线（只对 arc 卡生效）
+     phase: early | mid | late（随机卡可选；不填则全阶段可用）
+     requires: { flagsAll, flagsNone }
+     crisisFor: 危机卡关联的线，临界时优先出现
    ============================================================ */
 (function () {
   'use strict';
@@ -24,164 +30,448 @@
     gov: { name: '政府订单', icon: 'shield', saves: 'politics', line: '政界归零时回 40' }
   };
 
-  /* 选择格式：
-     { label, fx:{capital:-4,...}, react:'pressured'|'pleased', passive:'cash', flag:'x', ending:'he-returns' }
-     at = 第几张卡固定出现；没有 at 的进随机池。requires 支持 flagsAll / flagsNone。 */
+  function F(capital, engineering, customers, politics) {
+    var fx = {};
+    if (capital) fx.capital = capital;
+    if (engineering) fx.engineering = engineering;
+    if (customers) fx.customers = customers;
+    if (politics) fx.politics = politics;
+    return fx;
+  }
+  function O(label, fx, extra) {
+    var o = { label: label, fx: fx || {} };
+    if (extra) for (var k in extra) o[k] = extra[k];
+    return o;
+  }
+  function C(id, char, quote, left, right, meta) {
+    var c = { id: id, char: char, quote: quote, left: left, right: right, kind: 'random' };
+    if (meta) for (var k in meta) c[k] = meta[k];
+    if (c.arc) c.kind = 'arc';
+    return c;
+  }
+
+  /* ============================================================
+     卡片：100 张
+     ============================================================ */
   var CARDS = [
-    { id: 'c01', at: 1, char: 'jones', quote: '董事会找到你，给了你九十天。九十天后，他们会再投一次票。',
-      left: { label: '我需要时间', fx: { capital: -4, engineering: 4 } },
-      right: { label: '我准备好了', fx: { capital: 4, engineering: -4 } } },
 
-    { id: 'c02', at: 3, char: 'admin', quote: '黄先生的皮衣还在您办公室。要收进储藏室吗？',
-      left: { label: '收起来', fx: { capital: 6, engineering: -8 } },
-      right: { label: '挂回去', fx: { engineering: 8, capital: -6 }, flag: 'jacketHang' } },
+    /* ---------------- 固定开场 / 里程碑 ---------------- */
+    C('c01', 'jones', '董事会找到你，给了你九十天。九十天后，他们会再投一次票。',
+      O('我需要时间', F(-4, 4)), O('我准备好了', F(4, -4)),
+      { kind: 'opening', at: 1 }),
 
-    { id: 'c03', at: 5, char: 'kress', quote: '账上还有 990 亿回购额度。回购，还是全砸研发？',
-      left: { label: '回购', fx: { capital: 12, engineering: -10 }, passive: 'cash' },
-      right: { label: '研发', fx: { engineering: 12, capital: -10 }, passive: 'cuda' } },
+    C('c09', 'jones', '九十天到了。董事会投票：转正，还是延长试用？',
+      O('接受延长', F(-6, 6)), O('我要转正', F(8, -6), { flag: 'promoted' }),
+      { kind: 'milestone', at: 13 }),
 
-    { id: 'c04', at: 7, char: 'regulator', quote: '98 亿罚款。认了，还是退出中国？',
-      left: { label: '认罚', fx: { politics: 10, capital: -12 }, passive: 'gov' },
-      right: { label: '退出', fx: { capital: 8, politics: -14 } } },
+    C('m2', 'jones', '半年过去了。董事会想给你一个正式的头衔。',
+      O('接受“正式 CEO”', F(8, -4), { flag: 'confirmed' }), O('保留“临时”', F(-6, 6)),
+      { kind: 'milestone', at: 26 }),
 
-    { id: 'c05', at: 8, char: 'buyer', quote: '五折，加定制芯片。给不给？',
-      left: { label: '给', fx: { customers: 14, capital: -10 }, passive: 'contract' },
-      right: { label: '不给', fx: { capital: 8, customers: -12 } } },
+    /* ============================================================
+       弧线 01 · 皮衣与前任
+       ============================================================ */
+    C('c02', 'admin', '黄先生的皮衣还在您办公室。要收进储藏室吗？',
+      O('收起来', F(6, -8)), O('挂回去', F(-6, 8), { flag: 'jacketHang' }),
+      { arc: 'jacket' }),
 
-    { id: 'c06', at: 9, char: 'supplier', quote: 'CoWoS 扩到 15 万片，也不够分。先保谁？',
-      left: { label: '保大客户', fx: { customers: 10, politics: -6 } },
-      right: { label: '保主权 AI', fx: { politics: 8, customers: -8 } } },
+    C('j1', 'admin', '皮衣的干洗票还夹在口袋里。日期是今天。',
+      O('查清楚', F(-4, 6)), O('装作没看见', F(4, -4)),
+      { arc: 'jacket' }),
 
-    { id: 'c07', at: 11, char: 'official', quote: '想拿许可证，就在芯片里留个位置给我们。',
-      left: { label: '照办', fx: { politics: 12, customers: -10 }, passive: 'gov' },
-      right: { label: '拒绝', fx: { customers: 8, politics: -12 } } },
+    C('c08', 'huang', '别学我。他们爱的是我会讲故事，不是我会做芯片。',
+      O('收进抽屉', F(4, -4)), O('念给高管听', F(-6, 8)),
+      { arc: 'jacket', mood: 'letter' }),
 
-    { id: 'c08', at: 12, char: 'huang', mood: 'letter', quote: '别学我。他们爱的是我会讲故事，不是我会做芯片。',
-      left: { label: '收进抽屉', fx: { capital: 4, engineering: -4 } },
-      right: { label: '念给高管听', fx: { engineering: 8, capital: -6 } } },
+    C('j2', 'admin', '黄先生的老部下想回来。给他一个位子吗？',
+      O('给', F(-8, 10), { flag: 'oldGuard' }), O('拒绝', F(8, -6)),
+      { arc: 'jacket' }),
 
-    { id: 'c09', at: 13, char: 'jones', quote: '九十天到了。董事会投票：转正，还是延长试用？',
-      left: { label: '接受延长', fx: { capital: -6, engineering: 6 } },
-      right: { label: '我要转正', fx: { capital: 8, engineering: -6 }, flag: 'promoted' } },
+    C('j3', 'huang', '董事会想让我录一段告别视频。脚本您来写吗？',
+      O('我来写', F(4, 4, 0, -6)), O('让他自由发挥', F(-8, 8)),
+      { arc: 'jacket', mood: 'letter' }),
 
-    { id: 'c10', at: 15, char: 'regulator', quote: 'H200 批了 75 万块，海关不放行。等，还是转口？',
-      left: { label: '等', fx: { capital: -8, politics: 6 } },
-      right: { label: '转口', fx: { capital: 10, politics: -14 }, flag: 'transship' } },
+    C('j4', 'admin', '有员工把皮衣照片发到了内网。要删帖吗？',
+      O('删', F(6, -8, 0, -4)), O('留着', F(-6, 8, 0, 4)),
+      { arc: 'jacket' }),
 
-    { id: 'c11', at: 17, char: 'buyer', quote: '千亿的协议缩到三百亿。还投不投？',
-      left: { label: '再投', fx: { customers: 12, capital: -10 } },
-      right: { label: '不投', fx: { capital: 6, customers: -10 } } },
+    C('j5', 'admin', '黄先生的旧办公室要改成会议室。门牌怎么处理？',
+      O('保留门牌', F(-6, 8), { flag: 'legacy' }), O('换成新的', F(6, -6)),
+      { arc: 'jacket' }),
 
-    { id: 'c12', at: 19, char: 'official', quote: '对华收入 15% 上缴。这是继续卖的条件。',
-      left: { label: '交', fx: { politics: 8, capital: -10 } },
-      right: { label: '不交', fx: { capital: 6, politics: -10 } } },
+    C('c16', 'huang', 'GTC 那天，需要我上台吗？',
+      O('请他上台', F(), { ending: 'he-returns' }), O('自己上', F(-6, 10)),
+      { arc: 'jacket', mood: 'stage' }),
 
-    { id: 'c13', at: 21, char: 'supplier', quote: 'HBM4 良率不行。长约锁产能，价格翻五倍。',
-      left: { label: '锁长约', fx: { engineering: 8, capital: -10 } },
-      right: { label: '换供应商', fx: { capital: 6, engineering: -8 } } },
+    /* ============================================================
+       弧线 02 · 中国市场
+       ============================================================ */
+    C('c04', 'regulator', '98 亿罚款。认了，还是退出中国？',
+      O('认罚', F(-12, 0, 0, 10), { passive: 'gov' }), O('退出', F(8, 0, 0, -14)),
+      { arc: 'china' }),
 
-    { id: 'c14', at: 23, char: 'admin', quote: 'T5T 的全员邮件，还写吗？',
-      left: { label: '继续写', fx: { engineering: 8, capital: -6 } },
-      right: { label: '取消', fx: { capital: 6, engineering: -8 } } },
+    C('ch1', 'regulator', '反垄断调查要调取过去五年的销售数据。给不给？',
+      O('给', F(-10, 0, 0, 10)), O('拖', F(6, 0, 0, -12)),
+      { arc: 'china' }),
 
-    { id: 'c15', at: 25, char: 'buyer', quote: '我们自研的芯片够用了。合同，明年再说。',
-      left: { label: '降价挽留', fx: { customers: 8, capital: -12 } },
-      right: { label: '放他走', fx: { capital: 6, customers: -14 } } },
+    C('ch4', 'regulator', '我们可以把罚款改成“研发投资承诺”。签不签？',
+      O('签', F(-8, 4, 0, 10), { flag: 'chinaDeal' }), O('不签', F(8, 0, 0, -10)),
+      { arc: 'china' }),
 
-    { id: 'c16', at: 27, char: 'huang', mood: 'stage', quote: 'GTC 那天，需要我上台吗？',
-      left: { label: '请他上台', ending: 'he-returns' },
-      right: { label: '自己上', fx: { engineering: 10, capital: -6 } } },
+    C('ch3', 'regulator', 'H200 的最终用户名单里，有三家上了美方实体清单。',
+      O('主动报备', F(-6, 0, -4, 8)), O('不报', F(8, 0, 0, -10)),
+      { arc: 'china' }),
 
-    { id: 'c17', at: 29, char: 'jones', quote: '他手里还有 3.6% 的股票。他会卖吗？',
-      left: { label: '请他承诺不减持', fx: { capital: 8, engineering: -6 } },
-      right: { label: '让他自由处置', fx: { capital: -10, engineering: 6 } } },
+    C('c10', 'regulator', 'H200 批了 75 万块，海关不放行。等，还是转口？',
+      O('等', F(-8, 0, 0, 6)), O('转口', F(10, 0, 0, -14), { flag: 'transship' }),
+      { arc: 'china' }),
 
-    { id: 'c18', at: 31, char: 'kress', quote: '财报电话会明早九点。下调指引，还是硬扛？',
-      left: { label: '下调', fx: { capital: -10, engineering: 6 } },
-      right: { label: '硬扛', fx: { capital: 10, engineering: -10 } } },
+    C('ch5', 'regulator', '稀土出口许可需要重新申请。库存还能撑几周？',
+      O('提前沟通', F(-8, 0, 0, 6)), O('找替代', F(-6, 6)),
+      { arc: 'china' }),
 
-    { id: 'c19', at: 33, char: 'regulator', quote: '国产替代抢单。让利，还是放弃这个市场？',
-      left: { label: '让利挽留', fx: { customers: 8, capital: -10 } },
-      right: { label: '放弃', fx: { capital: 6, customers: -12 } } },
+    C('ch2', 'regulator', '国产 GPU 厂商想进采购名单。推荐吗？',
+      O('推荐', F(0, 0, -6, 8)), O('不推荐', F(0, 0, 6, -8)),
+      { arc: 'china' }),
 
-    { id: 'c20', at: 35, char: 'official', quote: '国会下周传唤。你去不去作证？',
-      left: { label: '去', fx: { politics: 8, capital: -6 } },
-      right: { label: '不去', fx: { politics: -10, capital: 6 } } },
+    C('c19', 'regulator', '国产替代抢单。让利，还是放弃这个市场？',
+      O('让利挽留', F(-10, 0, 8, 0)), O('放弃', F(6, 0, -12, 0)),
+      { arc: 'china' }),
 
-    /* ---------- 随机池 ---------- */
-    { id: 'r01', char: 'kress', quote: '毛利率 75%，华尔街还嫌不够。要把研发费用挪出来做利润吗？',
-      left: { label: '挪', fx: { capital: 10, engineering: -10 } },
-      right: { label: '不挪', fx: { engineering: 8, capital: -6 } } },
+    /* ============================================================
+       弧线 03 · 千亿订单
+       ============================================================ */
+    C('c05', 'buyer', '五折，加定制芯片。给不给？',
+      O('给', F(-10, 0, 14, 0), { passive: 'contract' }), O('不给', F(8, 0, -12, 0)),
+      { arc: 'orders' }),
 
-    { id: 'r02', char: 'kress', quote: '股东集体诉讼：你隐瞒了中国关系。和解，还是打？',
-      left: { label: '和解', fx: { capital: -10, politics: 6 } },
-      right: { label: '打官司', fx: { capital: 8, politics: -10 } } },
+    C('o1', 'buyer', '我们要把订单拆成四份，给四家供应商。接不接？',
+      O('接', F(-8, 0, 10, 0)), O('不接', F(8, 0, -10, 0)),
+      { arc: 'orders' }),
 
-    { id: 'r03', char: 'buyer', quote: '签五年独家，我们包你一半产能。',
-      left: { label: '签', fx: { customers: 12, politics: -8 }, passive: 'contract', flag: 'exclusive' },
-      right: { label: '不签', fx: { customers: -8, capital: 6 } } },
+    C('o2', 'buyer', '五年长约可以签，但价格每年降 8%。',
+      O('签', F(-10, 0, 12, 0), { passive: 'contract' }), O('不签', F(6, 0, -8, 0)),
+      { arc: 'orders' }),
 
-    { id: 'r04', char: 'buyer', quote: '我们想用你们的 GPU 做抵押，再买你们的 GPU。',
-      left: { label: '支持', fx: { customers: 8, capital: -8 }, flag: 'circular' },
-      right: { label: '拒绝', fx: { customers: -6, capital: 6 } } },
+    C('c11', 'buyer', '千亿的协议缩到三百亿。还投不投？',
+      O('再投', F(-10, 0, 12, 0)), O('不投', F(6, 0, -10, 0)),
+      { arc: 'orders' }),
 
-    { id: 'r05', char: 'supplier', quote: '美国产的 Blackwell 成本高三成。做不做？',
-      left: { label: '做', fx: { politics: 8, capital: -8 } },
-      right: { label: '不做', fx: { capital: 6, politics: -8 } } },
+    C('o3', 'buyer', '客户想派一个董事进你们的供应链团队。',
+      O('同意', F(0, -4, 8, -8)), O('拒绝', F(6, 0, -6, 0)),
+      { arc: 'orders' }),
 
-    { id: 'r06', char: 'supplier', quote: '俄亥俄的数据中心，电不够。先锁电，还是先接单？',
-      left: { label: '先锁电', fx: { capital: -10, politics: 8 } },
-      right: { label: '先接单', fx: { capital: 8, politics: -8 } } },
+    C('o4', 'buyer', '预付款打过来了，但要求优先发货。',
+      O('收', F(10, 0, -6, 0)), O('退', F(-6, 0, 8, 0)),
+      { arc: 'orders' }),
 
-    { id: 'r07', char: 'admin', quote: '工程师要期权，不给就走。',
-      left: { label: '给', fx: { engineering: 10, capital: -8 } },
-      right: { label: '不给', fx: { capital: 8, engineering: -10 } } },
+    C('o5', 'buyer', '下一代芯片如果延迟，我们就转单。',
+      O('承诺', F(-6, -4, 8, 0)), O('不承诺', F(6, 0, -10, 0)),
+      { arc: 'orders' }),
 
-    { id: 'r08', char: 'admin', quote: '媒体说，你只是黄仁勋的替身。',
-      left: { label: '我不是任何人的替身', fx: { engineering: 8, capital: -6 } },
-      right: { label: '至少我穿得下那件皮衣', fx: { capital: 8, engineering: -6 } } },
+    C('c15', 'buyer', '我们自研的芯片够用了。合同，明年再说。',
+      O('降价挽留', F(-12, 0, 8, 0)), O('放他走', F(6, 0, -14, 0)),
+      { arc: 'orders' }),
 
-    { id: 'r09', char: 'official', quote: '盟友要求共享芯片出口数据。答应吗？',
-      left: { label: '答应', fx: { politics: 8, customers: -8 } },
-      right: { label: '拒绝', fx: { customers: 6, politics: -8 } } },
+    /* ============================================================
+       弧线 04 · 产能与供应链
+       ============================================================ */
+    C('c06', 'supplier', 'CoWoS 扩到 15 万片，也不够分。先保谁？',
+      O('保大客户', F(0, 0, 10, -6)), O('保主权 AI', F(0, 0, -8, 8)),
+      { arc: 'supply' }),
 
-    { id: 'r10', char: 'regulator', quote: '关键矿物出口要收紧。你怎么接？',
-      left: { label: '提前囤货', fx: { capital: -8, engineering: 6 } },
-      right: { label: '找替代', fx: { engineering: 8, capital: -6 } } },
+    C('s1', 'supplier', '美国厂的成本比台湾高 30%。要转一部分过去吗？',
+      O('转', F(-12, 0, 0, 10)), O('不转', F(8, 0, 0, -10)),
+      { arc: 'supply' }),
 
-    { id: 'r11', char: 'jones', quote: '总统打电话，说只有库克能接替你。',
-      left: { label: '附和', fx: { politics: 6, capital: -6 } },
-      right: { label: '那您该打给库克', fx: { capital: 6, politics: -8 } } },
+    C('s2', 'supplier', 'HBM4 产能被预定到 2027。要不要签三年？',
+      O('签', F(-12, 8, 0, 0)), O('等', F(6, -8, 0, 0)),
+      { arc: 'supply' }),
 
-    { id: 'r12', char: 'jones', quote: '董事会有人提议把公司拆成四块。',
-      left: { label: '反对', fx: { capital: 8, engineering: -6 } },
-      right: { label: '研究一下', fx: { capital: -6, customers: 6 } } },
+    C('s3', 'supplier', '稀土出口许可被卡，库存只够六周。',
+      O('囤货', F(-8, 6, 0, 0)), O('找替代', F(-6, 8, 0, 0)),
+      { arc: 'supply' }),
 
-    { id: 'r13', char: 'huang', mood: 'jacket', requires: { flagsAll: ['jacketHang'] },
-      quote: '皮衣还挂在椅背上。要穿一次吗？',
-      left: { label: '穿上', fx: { engineering: 10, capital: -6 } },
-      right: { label: '不穿', fx: { capital: 6, engineering: -6 } } },
+    C('s4', 'supplier', '俄亥俄的数据中心电力不够，先保训练还是推理？',
+      O('保训练', F(0, 8, -6, 0)), O('保推理', F(0, -6, 8, 0)),
+      { arc: 'supply' }),
 
-    { id: 'r14', char: 'buyer', quote: '帮我们做定制芯片？你们出设计，我们出订单。',
-      left: { label: '合作', fx: { customers: 10, engineering: -8 } },
-      right: { label: '拒绝', fx: { engineering: 6, customers: -8 } } },
+    C('c13', 'supplier', 'HBM4 良率不行。长约锁产能，价格翻五倍。',
+      O('锁长约', F(-10, 8, 0, 0)), O('换供应商', F(6, -8, 0, 0)),
+      { arc: 'supply' }),
 
-    /* ---------- 危机卡：第 14 张后进入抽卡池 ---------- */
-    { id: 'x01', crisis: true, char: 'kress', quote: '财报夜：下调指引，还是硬扛？',
-      left: { label: '下调', fx: { capital: -12, engineering: 6 } },
-      right: { label: '硬扛', fx: { capital: 12, engineering: -12 } } },
+    C('s5', 'supplier', '台积电想把代工价再涨 5%。',
+      O('接受', F(-10, 8, 0, 0)), O('谈', F(4, -6, 0, 0)),
+      { arc: 'supply' }),
 
-    { id: 'x02', crisis: true, char: 'official', quote: '新规今晚生效。最好的芯片，不能卖了。',
-      left: { label: '遵守', fx: { politics: 10, capital: -14, customers: -6 } },
-      right: { label: '绕道', fx: { capital: 10, politics: -16 } } },
+    C('s6', 'supplier', '有家新代工厂愿意接单，但良率只有 70%。',
+      O('试', F(-6, 8, 0, 0)), O('不试', F(6, -4, 0, 0)),
+      { arc: 'supply' }),
 
-    { id: 'x03', crisis: true, char: 'regulator', quote: '反垄断调查升级。配合，还是抗争？',
-      left: { label: '配合', fx: { politics: 8, capital: -10 } },
-      right: { label: '抗争', fx: { capital: 8, politics: -14 } } }
+    /* ============================================================
+       弧线 05 · 华盛顿
+       ============================================================ */
+    C('c07', 'official', '想拿许可证，就在芯片里留个位置给我们。',
+      O('照办', F(0, 0, -10, 12), { passive: 'gov' }), O('拒绝', F(0, 0, 8, -12)),
+      { arc: 'washington' }),
+
+    C('w1', 'official', '盟友要求共享你的客户名单。给不给？',
+      O('给', F(0, 0, -8, 10)), O('不给', F(0, 0, 6, -10)),
+      { arc: 'washington' }),
+
+    C('w2', 'official', '新的出口许可证要附带“可远程关闭”条款。',
+      O('接受', F(0, 0, -10, 12)), O('拒绝', F(0, 0, 8, -12)),
+      { arc: 'washington' }),
+
+    C('c12', 'official', '对华收入 15% 上缴。这是继续卖的条件。',
+      O('交', F(-10, 0, 0, 8)), O('不交', F(6, 0, 0, -10)),
+      { arc: 'washington' }),
+
+    C('w3', 'official', '国会想让你在听证会上说“中国永远追不上”。说吗？',
+      O('说', F(-8, 0, 0, 8)), O('不说', F(6, 0, 0, -8)),
+      { arc: 'washington' }),
+
+    C('w4', 'official', '白宫希望你在美国建一个“主权 AI”中心。',
+      O('答应', F(-12, 0, 0, 10)), O('拒绝', F(8, 0, 0, -10)),
+      { arc: 'washington' }),
+
+    C('w5', 'official', '对华销售许可可能恢复，但需要你公开支持某项法案。',
+      O('支持', F(-6, 0, 4, 8)), O('不支持', F(0, 0, 6, -10)),
+      { arc: 'washington' }),
+
+    C('c20', 'official', '国会下周传唤。你去不去作证？',
+      O('去', F(-6, 0, 0, 8)), O('不去', F(6, 0, 0, -10)),
+      { arc: 'washington' }),
+
+    /* ============================================================
+       弧线 06 · 华尔街
+       ============================================================ */
+    C('r01', 'kress', '毛利率 75%，华尔街还嫌不够。要把研发费用挪出来做利润吗？',
+      O('挪', F(10, -10)), O('不挪', F(-6, 8)),
+      { arc: 'street' }),
+
+    C('r02', 'kress', '股东集体诉讼：你隐瞒了中国关系。和解，还是打？',
+      O('和解', F(-10, 0, 0, 6)), O('打官司', F(8, 0, 0, -10)),
+      { arc: 'street' }),
+
+    C('st1', 'kress', '分析师说你们是“AI 泡沫的最后一棒”。回不回？',
+      O('回击', F(6, 0, -4, 0)), O('不回应', F(-4, 0, 6, 0)),
+      { arc: 'street' }),
+
+    C('st2', 'kress', '有人提议把财报电话会改成录播。',
+      O('改', F(8, -4)), O('不改', F(-6, 4)),
+      { arc: 'street' }),
+
+    C('c03', 'kress', '账上还有 990 亿回购额度。回购，还是全砸研发？',
+      O('回购', F(12, -10), { passive: 'cash' }), O('研发', F(-10, 12), { passive: 'cuda' }),
+      { arc: 'street' }),
+
+    C('st3', 'kress', '大股东要求增加分红。',
+      O('增加', F(8, -8)), O('拒绝', F(-8, 0, 0, 0)),
+      { arc: 'street' }),
+
+    C('st4', 'kress', '做空机构发布了一份 40 页的报告。',
+      O('逐条回应', F(-6, 0, 0, 4)), O('不回应', F(6, 0, 0, -8), { flag: 'shortReport' }),
+      { arc: 'street' }),
+
+    C('c18', 'kress', '财报电话会明早九点。下调指引，还是硬扛？',
+      O('下调', F(-10, 6)), O('硬扛', F(10, -10)),
+      { arc: 'street' }),
+
+    /* ============================================================
+       弧线 07 · 团队与文化
+       ============================================================ */
+    C('c14', 'admin', 'T5T 的全员邮件，还写吗？',
+      O('继续写', F(-6, 8)), O('取消', F(6, -8)),
+      { arc: 'culture' }),
+
+    C('cu1', 'admin', '工程师们在匿名论坛上说，你只是“临时工”。',
+      O('内部信', F(-6, 8)), O('不理', F(6, -8)),
+      { arc: 'culture' }),
+
+    C('r07', 'admin', '工程师要期权，不给就走。',
+      O('给', F(-8, 10)), O('不给', F(8, -10)),
+      { arc: 'culture' }),
+
+    C('cu2', 'admin', '核心架构师收到竞争对手的 offer。',
+      O('加薪挽留', F(-10, 10)), O('放人', F(8, -10)),
+      { arc: 'culture' }),
+
+    C('cu3', 'admin', '每周五的“皮衣日”要不要恢复？',
+      O('恢复', F(-6, 8)), O('取消', F(6, -6)),
+      { arc: 'culture' }),
+
+    C('cu4', 'admin', '团队想办一次发布会，预算 2000 万。',
+      O('批', F(-8, 8, 4, 0)), O('拒', F(6, -8)),
+      { arc: 'culture' }),
+
+    C('cu5', 'admin', '有人在内部举报供应链腐败。',
+      O('查', F(-8, 6, 0, 4)), O('压', F(8, -8, 0, -6)),
+      { arc: 'culture' }),
+
+    C('r08', 'admin', '媒体说，你只是黄仁勋的替身。',
+      O('我不是任何人的替身', F(-6, 8)), O('至少我穿得下那件皮衣', F(8, -6)),
+      { arc: 'culture' }),
+
+    /* ============================================================
+       随机池 · 33 张
+       ============================================================ */
+    C('c17', 'jones', '他手里还有 3.6% 的股票。他会卖吗？',
+      O('请他承诺不减持', F(8, -6)), O('让他自由处置', F(-10, 6))),
+
+    C('r03', 'buyer', '签五年独家，我们包你一半产能。',
+      O('签', F(0, 0, 12, -8), { passive: 'contract', flag: 'exclusive' }),
+      O('不签', F(6, 0, -8, 0))),
+
+    C('r04', 'buyer', '我们想用你们的 GPU 做抵押，再买你们的 GPU。',
+      O('支持', F(-8, 0, 8, 0), { flag: 'circular' }), O('拒绝', F(6, 0, -6, 0))),
+
+    C('r05', 'supplier', '美国产的 Blackwell 成本高三成。做不做？',
+      O('做', F(-8, 0, 0, 8)), O('不做', F(6, 0, 0, -8))),
+
+    C('r06', 'supplier', '俄亥俄的数据中心，电不够。先锁电，还是先接单？',
+      O('先锁电', F(-10, 0, 0, 8)), O('先接单', F(8, 0, 0, -8))),
+
+    C('r09', 'official', '盟友要求共享芯片出口数据。答应吗？',
+      O('答应', F(0, 0, -8, 8)), O('拒绝', F(0, 0, 6, -8))),
+
+    C('r10', 'regulator', '关键矿物出口要收紧。你怎么接？',
+      O('提前囤货', F(-8, 6)), O('找替代', F(-6, 8))),
+
+    C('r11', 'jones', '总统打电话，说只有库克能接替你。',
+      O('附和', F(-6, 0, 0, 6)), O('那您该打给库克', F(6, 0, 0, -8))),
+
+    C('r12', 'jones', '董事会有人提议把公司拆成四块。',
+      O('反对', F(8, -6)), O('研究一下', F(-6, 0, 6, 0))),
+
+    C('r13', 'huang', '皮衣还挂在椅背上。要穿一次吗？',
+      O('穿上', F(-6, 10)), O('不穿', F(6, -6)),
+      { mood: 'jacket', requires: { flagsAll: ['jacketHang'] } }),
+
+    C('r14', 'buyer', '帮我们做定制芯片？你们出设计，我们出订单。',
+      O('合作', F(0, -8, 10, 0)), O('拒绝', F(0, 6, -8, 0))),
+
+    C('r15', 'jones', '董事会建议把 90 天试用期改成 180 天。',
+      O('延长', F(6, -4)), O('拒绝', F(-6, 6)), { phase: 'early' }),
+
+    C('r16', 'jones', '有董事提议把你的办公室搬到黄先生隔壁。',
+      O('搬', F(-4, 6)), O('不搬', F(6, -4)), { phase: 'early' }),
+
+    C('r17', 'jones', '董事会对你的第一份财报“基本满意”。',
+      O('请他们吃饭', F(6, -4)), O('不庆祝', F(-4, 4)),
+      { phase: 'mid', requires: { flagsAll: ['promoted'] } }),
+
+    C('r18', 'kress', '政府补贴到账了，但附带就业指标。',
+      O('接受', F(8, -6, 0, 4)), O('拒绝', F(-6, 0, 0, -2)), { phase: 'mid' }),
+
+    C('r19', 'kress', '美元汇率波动，海外利润缩水。',
+      O('对冲', F(6, 0, 0, -4)), O('不对冲', F(-6, 0, 4, 0)), { phase: 'early' }),
+
+    C('r20', 'buyer', '客户要求 24 小时驻场工程师。',
+      O('派', F(-4, -6, 8, 0)), O('不派', F(0, 6, -8, 0)), { phase: 'mid' }),
+
+    C('r21', 'supplier', '一家车厂想把 GPU 用在自动驾驶上。',
+      O('接', F(0, 4, 8, -4)), O('不接', F(6, 0, 0, 4)), { phase: 'mid' }),
+
+    C('r22', 'regulator', '地方政府希望你投资建厂。',
+      O('投资', F(-10, 0, 0, 10)), O('不投', F(8, 0, 0, -8)), { phase: 'late' }),
+
+    C('r23', 'official', '五角大楼想要一批定制芯片。',
+      O('接', F(4, 0, -6, 10)), O('不接', F(0, 0, 6, -8)), { phase: 'mid' }),
+
+    C('r24', 'admin', '办公室装修预算超支。',
+      O('批', F(-8, 4)), O('砍', F(6, -4)), { phase: 'early' }),
+
+    C('r25', 'admin', '员工在茶水间贴了你的漫画像。',
+      O('笑纳', F(-4, 6)), O('撕掉', F(4, -6)), { phase: 'mid' }),
+
+    C('r26', 'huang', '黄先生寄来一张 GTC 的旧胸牌。',
+      O('收', F(4, -4)), O('扔', F(-4, 4)), { mood: 'letter', phase: 'mid' }),
+
+    C('r27', 'kress', '审计发现关联交易披露不全。',
+      O('补披露', F(-8, 0, 0, 6)), O('拖', F(4, 0, 0, -8)), { phase: 'late' }),
+
+    C('r28', 'buyer', '客户想签排他协议，但只包 30% 产能。',
+      O('签', F(-6, 0, 8, 0)), O('不签', F(6, 0, -6, 0)), { phase: 'mid' }),
+
+    C('r29', 'supplier', '晶圆厂要求预付款。',
+      O('付', F(-8, 6)), O('不付', F(6, -6)), { phase: 'mid' }),
+
+    C('r30', 'jones', '有媒体说你“只是过渡人物”。',
+      O('反驳', F(-4, 6)), O('默认', F(4, -6)), { phase: 'mid' }),
+
+    C('r31', 'huang', 'GTC 的舞台空了一年。今年谁来 keynote？',
+      O('自己上', F(-6, 8)), O('请别人', F(6, -6)), { mood: 'stage', phase: 'late' }),
+
+    C('r32', 'regulator', '海关扣了一批货，理由是“申报不实”。',
+      O('补税', F(-8, 0, 0, 6)), O('申诉', F(4, 0, 0, -6)), { phase: 'mid' }),
+
+    C('r33', 'kress', '股东要求透明披露 AI 收入占比。',
+      O('披露', F(-6, 0, 6, 0)), O('不披露', F(6, 0, 0, -4)), { phase: 'late' }),
+
+    C('r34', 'admin', '有员工在内部直播里骂你。',
+      O('公开回应', F(-4, 6)), O('私下处理', F(4, -4)), { phase: 'mid' }),
+
+    C('r35', 'buyer', '客户要把订单转给竞争对手。',
+      O('降价', F(-10, 0, 8, 0)), O('放走', F(6, 0, -10, 0)), { phase: 'late' }),
+
+    C('r36', 'supplier', '供应商要求用人民币结算。',
+      O('同意', F(-4, 0, 0, 6)), O('拒绝', F(4, 0, 0, -6)), { phase: 'late' }),
+
+    /* ============================================================
+       危机池 · 8 张
+       ============================================================ */
+    C('x01', 'kress', '财报夜：下调指引，还是硬扛？',
+      O('下调', F(-12, 6)), O('硬扛', F(12, -12)),
+      { kind: 'crisis', crisisFor: ['capital'] }),
+
+    C('x02', 'official', '新规今晚生效。最好的芯片，不能卖了。',
+      O('遵守', F(-14, 0, -6, 10)), O('绕道', F(10, 0, 0, -16)),
+      { kind: 'crisis', crisisFor: ['politics', 'customers'] }),
+
+    C('x03', 'regulator', '反垄断调查升级。配合，还是抗争？',
+      O('配合', F(-10, 0, 0, 8)), O('抗争', F(8, 0, 0, -14)),
+      { kind: 'crisis', crisisFor: ['politics', 'capital'] }),
+
+    C('x04', 'kress', '财报发布前 24 小时，审计师要求延迟披露。',
+      O('延迟', F(-12, 0, 0, 4)), O('按时发', F(12, -10)),
+      { kind: 'crisis', crisisFor: ['capital'] }),
+
+    C('x05', 'regulator', '中国宣布对英伟达启动新一轮调查。',
+      O('配合', F(-14, 0, -6, 10)), O('强硬', F(8, 0, 0, -16)),
+      { kind: 'crisis', crisisFor: ['politics', 'capital'] }),
+
+    C('x06', 'official', '美国把对华销售许可全部暂停。',
+      O('游说', F(-12, 0, 0, 8)), O('绕道', F(10, 0, 0, -16)),
+      { kind: 'crisis', crisisFor: ['politics'] }),
+
+    C('x07', 'supplier', '台湾地震，先进封装产线停工。',
+      O('转单', F(-12, 6)), O('等', F(6, -10)),
+      { kind: 'crisis', crisisFor: ['engineering'] }),
+
+    C('x08', 'buyer', '最大客户宣布自研芯片成功。',
+      O('降价', F(-14, 0, 8, 0)), O('放弃', F(8, 0, -16, 0)),
+      { kind: 'crisis', crisisFor: ['customers'] })
   ];
+
+  var ARCS = {
+    jacket: { name: '皮衣与前任', cards: ['c02', 'j1', 'c08', 'j2', 'j3', 'j4', 'j5', 'c16'] },
+    china: { name: '中国市场', cards: ['c04', 'ch1', 'ch4', 'ch3', 'c10', 'ch5', 'ch2', 'c19'] },
+    orders: { name: '千亿订单', cards: ['c05', 'o1', 'o2', 'c11', 'o3', 'o4', 'o5', 'c15'] },
+    supply: { name: '产能与供应链', cards: ['c06', 's1', 's2', 's3', 's4', 'c13', 's5', 's6'] },
+    washington: { name: '华盛顿', cards: ['c07', 'w1', 'w2', 'c12', 'w3', 'w4', 'w5', 'c20'] },
+    street: { name: '华尔街', cards: ['r01', 'r02', 'st1', 'st2', 'c03', 'st3', 'st4', 'c18'] },
+    culture: { name: '团队与文化', cards: ['c14', 'cu1', 'r07', 'cu2', 'cu3', 'cu4', 'cu5', 'r08'] }
+  };
+
+  var CARD_BY_ID = {};
+  CARDS.forEach(function (card) { CARD_BY_ID[card.id] = card; });
 
   window.PROTO_DATA = {
     cards: CARDS,
+    cardById: CARD_BY_ID,
+    arcs: ARCS,
+    totalCards: CARDS.length,
     endings: ENDINGS,
     passives: PASSIVES,
     initialMeters: { capital: 42, engineering: 55, customers: 50, politics: 45 },
@@ -193,6 +483,9 @@
       politics: { name: '政界', color: 'var(--red)', icon: 'i-pol' }
     },
     dayPerCard: 7,
-    cardsPerQuarter: 13
+    cardsPerQuarter: 13,
+    arcPick: 4,
+    arcStart: [3, 9],
+    arcGap: [2, 4]
   };
 })();

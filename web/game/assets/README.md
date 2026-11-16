@@ -7,7 +7,7 @@
 | 组 | 尺寸 | 安全区 | 用途 | 状态 |
 |---|---|---|---|---|
 | 角色 characters | 1200 × 840（10:7） | 80 px | 卡片立绘、标题档案卡、人物档案 | neutral 平静 / pressured 施压 / pleased 满意 |
-| 场景 scenes | 1600 × 900（16:9） | 80 px | 标题背景、事件空镜 | office / boardroom / gtc |
+| 场景 scenes | 1600 × 900（16:9） | 80 px | 标题背景、事件空镜 | office / boardroom / gtc + 预留 datacenter / capitol / factory / pressroom |
 | 证据 evidence | 1200 × 800（3:2） | 60 px | 标题页「EVIDENCE 01 · 皮衣」 | jacket |
 | 报纸 news | 800 × 600（4:3） | 40 px | 结局头版配图 | photo |
 
@@ -24,10 +24,17 @@ assets/news/photo.png / .webp
 ```
 
 - 加载器顺序：`webp → png → jpg → jpeg → svg`，找到即用。
-- 当前 29 个槽位均已接入正式美术并生成 WebP（总计约 **4 MB**，相比 42 MB PNG 约 **9.6%**）。
+- 当前 **45 个槽位**：29 个已接入正式美术并生成 WebP（总计约 **4 MB**，相比 42 MB PNG 约 **9.6%**）；16 个为扩展预留（4 位新角色 × 3 表情 + 4 个事件场景），暂用 SVG 占位。
 - PNG 保留为源文件与回退；页面优先请求 WebP；PNG 默认不提交（根目录 `.gitignore`）。
 - 替换后请运行 `python tools/optimize_assets.py` 更新 WebP；脚本只重转缺失或比 PNG 旧的图，需要 Python + Pillow。
 - `assets.html` 页面会显示每个槽位的实际文件、已替换状态和安全区预览。
+
+## 扩展预留槽位
+
+以下 16 个槽位已在 manifest 里标 `reserved: true`，先放占位 SVG；当前 100 张卡尚未使用，等正式美术接入后再启用。
+
+- 角色 4 位 × 3 表情：`analyst`（马克·陈 / 做空机构分析师）、`reporter`（艾拉 / 科技记者）、`engineer`（阿伦 / 芯片架构师）、`envoy`（特使 / 白宫国安会）。
+- 场景 4 个：`datacenter`（数据中心夜景）、`capitol`（国会听证厅）、`factory`（晶圆厂）、`pressroom`（发布会后台）。
 
 ## 表情语义
 
@@ -41,18 +48,18 @@ assets/news/photo.png / .webp
 
 ## 风格方向
 
-延续网页视觉方案 v0.2 的「印刷档案」：半调网点、套色错位、纸边剪裁、档案标签。当前接入的是电影感写实插画；替换时保持人物焦点、光位与安全区一致即可。
+延续网页视觉方案 v1.0 的「印刷档案」：半调网点、套色错位、纸边剪裁、档案标签。当前接入的是电影感写实插画；替换时保持人物焦点、光位与安全区一致即可。
 
 ## 清单文件
 
 - `manifest.json`：可读的槽位清单（工具用）。
 - `manifest.js`：同一份数据，挂到 `window.ART_SLOTS`，游戏与 `assets.html` 直接引用（file:// 下无需 fetch）。
-- `tools/generate_placeholders.py`：重新生成全部 29 张占位 SVG 与两份 manifest。
+- `tools/generate_placeholders.py`：重新生成全部 45 张占位 SVG 与两份 manifest。
 - `tools/optimize_assets.py`：PNG → WebP 压缩脚本（默认质量 88）。
 
 ## 替换自检
 
-1. 打开 `assets.html`，确认目标槽位显示“已替换”（右上统计 `已替换 n / 29`）。
+1. 打开 `assets.html`，确认目标槽位显示“已替换”（右上统计 `已替换 n / 45`）。
 2. 打开游戏，按 `A` 检查槽位框与标签对齐，确认主体没有出安全区。
 3. 连选几次，确认同一角色在平静/施压/满意之间切换时构图不跳。
 4. 部署前确认页面请求的是 `.webp` 而不是 1–2 MB 的单张 `.png`。

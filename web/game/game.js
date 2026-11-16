@@ -28,7 +28,9 @@
   var S = {
     turn: 0, day: 1, meters: {}, passives: [], flags: {}, log: [],
     current: null, currentMood: 'neutral', busy: false, dead: false,
-    recent: [], assetMode: false, debug: false, coach: false, coachChoice: false,
+    recent: [], recentChars: [], assetMode: false, debug: false, coach: false, coachChoice: false,
+    arcState: [], used: {}, randomUsed: {}, randomBag: [],
+    lastChar: '', lastArcTurn: 0, lastCrisisTurn: 0,
     best: Number(localStorage.getItem('saveNvidia.best') || 0)
   };
 
@@ -343,6 +345,25 @@
   }
 
   /* ---------------- 抽卡 ---------------- */
+  function randInt(min, max) {
+    return min + Math.floor(Math.random() * (max - min + 1));
+  }
+
+  function shuffle(list) {
+    var a = list.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function phaseOf(turn) {
+    if (turn <= 10) return 'early';
+    if (turn <= 24) return 'mid';
+    return 'late';
+  }
+
   function meets(card) {
     var r = card.requires;
     if (!r) return true;
@@ -351,33 +372,163 @@
     return true;
   }
 
-  function drawCard() {
-    var scripted = DATA.cards.filter(function (c) { return c.at === S.turn; })[0];
-    if (scripted && meets(scripted)) return scripted;
+  /* 开局从 7 条弧线里抽 4 条，每条弧线独立起始与间隔。
+     同一局看不到另外 3 条弧线；这是每局差异的主要来源。 */
+  function setupDeck() {
+    var arcKeys = Object.keys(DATA.arcs || {});
+    var picked = shuffle(arcKeys).slice(0, DATA.arcPick || 4);
+    var start = DATA.arcStart || [3, 9];
+    var gap = DATA.arcGap || [2, 4];
+    S.arcState = picked.map(function (id) {
+      return {
+        id: id,
+        name: DATA.arcs[id].name,
+        cards: DATA.arcs[id].cards.slice(),
+        index: 0,
+        nextAt: randInt(start[0], start[1]),
+        gap: gap
+      };
+    });
+    S.used = {};
+    S.randomUsed = {};
+    S.randomBag = [];
+    S.recentChars = [];
+    S.lastChar = '';
+    S.lastArcTurn = 0;
+    S.lastCrisisTurn = 0;
+  }
 
+  function drawFixed() {
+    for (var i = 0; i < DATA.cards.length; i++) {
+      var c = DATA.cards[i];
+      if (c.at === S.turn && meets(c) && !S.used[c.id]) return c;
+    }
+    return null;
+  }
+
+  function dueArcs() {
+    return S.arcState.filter(function (a) {
+      return a.index < a.cards.length && S.turn >= a.nextAt;
+    });
+  }
+
+  function drawArc() {
+    var due = dueArcs();
+    if (!due.length) return null;
+    var arc = due[randInt(0, due.length - 1)];
+    var picked = null;
+    while (arc.index < arc.cards.length) {
+      var c = DATA.cardById[arc.cards[arc.index++]];
+      if (c && meets(c) && !S.used[c.id]) { picked = c; break; }
+    }
+    if (!picked) return null;
+    var gap = arc.gap || [2, 4];
+    arc.nextAt = S.turn + randInt(gap[0], gap[1]);
+    S.lastArcTurn = S.turn;
+    return picked;
+  }
+
+  function crisisTrigger() {
+    if (S.turn < 6) return false;
+    var critical = ORDER.some(function (k) { return S.meters[k] <= 24 || S.meters[k] >= 76; });
+    var since = S.turn - S.lastCrisisTurn;
+    if (critical) return Math.random() < 0.55;
+    if (since >= 9) return Math.random() < 0.45;
+    return Math.random() < 0.07;
+  }
+
+  function drawCrisis() {
     var pool = DATA.cards.filter(function (c) {
-      return !c.at && meets(c) && S.recent.indexOf(c.id) === -1;
+      return c.kind === 'crisis' && meets(c) && !S.used[c.id];
+    });
+    if (!pool.length) return null;
+    var critical = ORDER.filter(function (k) { return S.meters[k] <= 24 || S.meters[k] >= 76; });
+    if (critical.length) {
+      var targeted = pool.filter(function (c) {
+        return c.crisisFor && c.crisisFor.some(function (k) { return critical.indexOf(k) !== -1; });
+      });
+      if (targeted.length) pool = targeted;
+    }
+    return pool[randInt(0, pool.length - 1)];
+  }
+
+  function refillRandom() {
+    var phase = phaseOf(S.turn);
+    var pool = DATA.cards.filter(function (c) {
+      return c.kind === 'random' && meets(c) && !S.randomUsed[c.id] && S.recent.indexOf(c.id) === -1;
     });
     if (!pool.length) {
-      S.recent = [];
-      pool = DATA.cards.filter(function (c) { return !c.at && meets(c); });
+      S.randomUsed = {};
+      pool = DATA.cards.filter(function (c) {
+        return c.kind === 'random' && meets(c) && S.recent.indexOf(c.id) === -1;
+      });
     }
-    var crises = pool.filter(function (c) { return c.crisis; });
-    var normal = pool.filter(function (c) { return !c.crisis; });
-    var useCrisis = S.turn >= 14 && crises.length && Math.random() < 0.22;
-    var pick = useCrisis ? crises[Math.floor(Math.random() * crises.length)] :
-      (normal.length ? normal[Math.floor(Math.random() * normal.length)] : pool[0]);
-    return pick;
+    var byPhase = pool.filter(function (c) { return !c.phase || c.phase === phase; });
+    if (byPhase.length >= 4) pool = byPhase;
+    S.randomBag = shuffle(pool.map(function (c) { return c.id; }));
+  }
+
+  function drawRandom() {
+    for (var i = 0; i < 70; i++) {
+      if (!S.randomBag.length) refillRandom();
+      if (!S.randomBag.length) return null;
+      var id = S.randomBag.pop();
+      var c = DATA.cardById[id];
+      if (!c || !meets(c) || S.used[c.id] || S.recent.indexOf(c.id) !== -1) continue;
+      if (S.lastChar && c.char === S.lastChar && S.randomBag.length > 1) continue;
+      if (S.recentChars.indexOf(c.char) !== -1 && S.randomBag.length > 3) continue;
+      return c;
+    }
+    return null;
+  }
+
+  function drawCard() {
+    // 1) 开场 / 里程碑固定
+    var fixed = drawFixed();
+    if (fixed) return fixed;
+
+    // 2) 任意一条线临界时，危机优先
+    if (S.turn >= 6 && crisisTrigger()) {
+      var crisis = drawCrisis();
+      if (crisis) return crisis;
+    }
+
+    // 3) 已激活弧线：同一局 4 条，按各自随机档期推进
+    var due = dueArcs();
+    if (due.length && S.turn - S.lastArcTurn >= 2 && (S.turn < 10 || Math.random() < 0.7)) {
+      var arc = drawArc();
+      if (arc) return arc;
+    }
+
+    // 4) 随机池：阶段权重 + 角色冷却 + 不重复袋
+    var random = drawRandom();
+    if (random) return random;
+
+    // 5) 兜底：还有弧线没走完就继续走
+    var lateArc = drawArc();
+    if (lateArc) return lateArc;
+    var fallback = DATA.cards.filter(function (c) {
+      return c.kind === 'random' && meets(c) && !S.used[c.id];
+    });
+    if (fallback.length) return fallback[randInt(0, fallback.length - 1)];
+    return DATA.cardById.c01;
   }
 
   function nextTurn() {
     S.turn += 1;
     S.day = (S.turn - 1) * DATA.dayPerCard + 1;
     S.busy = false;
-    S.current = drawCard();
-    if (!S.current) { S.turn = 1; S.current = drawCard(); }
-    S.recent.push(S.current.id);
-    if (S.recent.length > 8) S.recent.shift();
+    var card = drawCard();
+    if (!card) card = DATA.cardById.c01;
+    S.current = card;
+    S.used[card.id] = true;
+    if (card.kind === 'random') S.randomUsed[card.id] = true;
+    if (card.kind === 'crisis') S.lastCrisisTurn = S.turn;
+    S.recent.push(card.id);
+    if (S.recent.length > 10) S.recent.shift();
+    S.recentChars.push(card.char);
+    if (S.recentChars.length > 2) S.recentChars.shift();
+    S.lastChar = card.char;
     renderCard();
     renderClock();
     renderMeters();
@@ -535,6 +686,15 @@
     S.recent = [];
     S.coach = false;
     S.coachChoice = false;
+    S.arcState = [];
+    S.used = {};
+    S.randomUsed = {};
+    S.randomBag = [];
+    S.recentChars = [];
+    S.lastChar = '';
+    S.lastArcTurn = 0;
+    S.lastCrisisTurn = 0;
+    setupDeck();
   }
 
   function startGame(opts) {

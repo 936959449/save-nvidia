@@ -1,6 +1,6 @@
 window.ART_SLOTS = {
-  "version": "1.0.0",
-  "updated": "2026-11-13",
+  "version": "1.1.0",
+  "updated": "2026-11-16",
   "project": "拯救英伟达 · 美术资源槽位",
   "notes": "替换时把同名 PNG（源文件）放到对应目录，并运行 tools/optimize_assets.py 生成 WebP；加载器按 webp→png→jpg→jpeg→svg 查找。安全区内的主体不会被 UI 裁掉；焦点默认在画布上方 38% 处。",
   "canvas": {
@@ -37,6 +37,7 @@ window.ART_SLOTS = {
       "faction": "资本",
       "color": "#C9A24A",
       "note": "银发、眼镜、深橄榄西装；视平线略高，像在审视玩家。",
+      "reserved": false,
       "states": [
         {
           "state": "neutral",
@@ -65,6 +66,7 @@ window.ART_SLOTS = {
       "faction": "资本",
       "color": "#C9A24A",
       "note": "深色波波头、蓝西装、珍珠耳环；姿态克制。",
+      "reserved": false,
       "states": [
         {
           "state": "neutral",
@@ -93,6 +95,7 @@ window.ART_SLOTS = {
       "faction": "内部",
       "color": "#9AA88F",
       "note": "发髻、开衫、工牌挂绳；手里常抱一个纸箱。",
+      "reserved": false,
       "states": [
         {
           "state": "neutral",
@@ -121,6 +124,7 @@ window.ART_SLOTS = {
       "faction": "中国监管",
       "color": "#D4574A",
       "note": "短黑发、圆框眼镜、暗红夹克；目光不直视。",
+      "reserved": false,
       "states": [
         {
           "state": "neutral",
@@ -149,6 +153,7 @@ window.ART_SLOTS = {
       "faction": "白宫",
       "color": "#6C86A8",
       "note": "侧分短发、藏蓝西装、国旗别针与耳麦线。",
+      "reserved": false,
       "states": [
         {
           "state": "neutral",
@@ -177,6 +182,7 @@ window.ART_SLOTS = {
       "faction": "客户",
       "color": "#5689DA",
       "note": "短寸、浅蓝衬衫、公司挂绳；手里拿着合同或平板。",
+      "reserved": false,
       "states": [
         {
           "state": "neutral",
@@ -205,6 +211,7 @@ window.ART_SLOTS = {
       "faction": "供应链",
       "color": "#76B900",
       "note": "灰发、工装夹克、厂牌；背景可带晶圆/机台暗示。",
+      "reserved": false,
       "states": [
         {
           "state": "neutral",
@@ -233,6 +240,7 @@ window.ART_SLOTS = {
       "faction": "前任",
       "color": "#76B900",
       "note": "不画正脸。只交付三样东西：皮衣、信件、GTC 剪影。",
+      "reserved": false,
       "states": [
         {
           "state": "jacket",
@@ -253,6 +261,122 @@ window.ART_SLOTS = {
           "usage": "选择后的表情反馈"
         }
       ]
+    },
+    {
+      "id": "analyst",
+      "name": "马克·陈",
+      "role": "做空机构分析师",
+      "faction": "华尔街",
+      "color": "#9B7EDE",
+      "note": "细框眼镜、深色高领、平板；表情克制，像在读一份不想读的报告。",
+      "reserved": true,
+      "states": [
+        {
+          "state": "neutral",
+          "label": "平静",
+          "file": "characters/analyst-neutral",
+          "usage": "卡片默认立绘"
+        },
+        {
+          "state": "pressured",
+          "label": "施压",
+          "file": "characters/analyst-pressured",
+          "usage": "选择后的表情反馈"
+        },
+        {
+          "state": "pleased",
+          "label": "满意",
+          "file": "characters/analyst-pleased",
+          "usage": "选择后的表情反馈"
+        }
+      ]
+    },
+    {
+      "id": "reporter",
+      "name": "艾拉",
+      "role": "科技记者",
+      "faction": "媒体",
+      "color": "#E28A5A",
+      "note": "卷发、录音笔、媒体证；背景可带闪光灯。",
+      "reserved": true,
+      "states": [
+        {
+          "state": "neutral",
+          "label": "平静",
+          "file": "characters/reporter-neutral",
+          "usage": "卡片默认立绘"
+        },
+        {
+          "state": "pressured",
+          "label": "施压",
+          "file": "characters/reporter-pressured",
+          "usage": "选择后的表情反馈"
+        },
+        {
+          "state": "pleased",
+          "label": "满意",
+          "file": "characters/reporter-pleased",
+          "usage": "选择后的表情反馈"
+        }
+      ]
+    },
+    {
+      "id": "engineer",
+      "name": "阿伦",
+      "role": "芯片架构师",
+      "faction": "工程",
+      "color": "#5FA8A0",
+      "note": "连帽衫、格子衬衫、满桌草图；眼神疲惫但专注。",
+      "reserved": true,
+      "states": [
+        {
+          "state": "neutral",
+          "label": "平静",
+          "file": "characters/engineer-neutral",
+          "usage": "卡片默认立绘"
+        },
+        {
+          "state": "pressured",
+          "label": "施压",
+          "file": "characters/engineer-pressured",
+          "usage": "选择后的表情反馈"
+        },
+        {
+          "state": "pleased",
+          "label": "满意",
+          "file": "characters/engineer-pleased",
+          "usage": "选择后的表情反馈"
+        }
+      ]
+    },
+    {
+      "id": "envoy",
+      "name": "特使",
+      "role": "白宫国安会",
+      "faction": "白宫",
+      "color": "#8A9BB5",
+      "note": "深灰大衣、无标识公文包、耳麦；不递名片。",
+      "reserved": true,
+      "states": [
+        {
+          "state": "neutral",
+          "label": "平静",
+          "file": "characters/envoy-neutral",
+          "usage": "卡片默认立绘"
+        },
+        {
+          "state": "pressured",
+          "label": "施压",
+          "file": "characters/envoy-pressured",
+          "usage": "选择后的表情反馈"
+        },
+        {
+          "state": "pleased",
+          "label": "满意",
+          "file": "characters/envoy-pleased",
+          "usage": "选择后的表情反馈"
+        }
+      ]
     }
   ],
   "misc": [
@@ -262,6 +386,7 @@ window.ART_SLOTS = {
       "name": "顶层办公室",
       "file": "scenes/office",
       "note": "黄昏落地窗、数据中心剪影、皮衣挂在椅背上（可空镜）。",
+      "reserved": false,
       "usage": "标题 / 事件背景"
     },
     {
@@ -270,6 +395,7 @@ window.ART_SLOTS = {
       "name": "董事会会议室",
       "file": "scenes/boardroom",
       "note": "长桌、绿台灯、空椅子；冷色调。",
+      "reserved": false,
       "usage": "标题 / 事件背景"
     },
     {
@@ -278,6 +404,43 @@ window.ART_SLOTS = {
       "name": "GTC 舞台",
       "file": "scenes/gtc",
       "note": "绿色背光、巨大屏幕、台下只留黑色人海。",
+      "reserved": false,
+      "usage": "标题 / 事件背景"
+    },
+    {
+      "id": "datacenter",
+      "group": "scenes",
+      "name": "数据中心夜景",
+      "file": "scenes/datacenter",
+      "note": "成排机柜、冷白指示灯、远处运维手电；16:9 空镜。",
+      "reserved": true,
+      "usage": "标题 / 事件背景"
+    },
+    {
+      "id": "capitol",
+      "group": "scenes",
+      "name": "国会听证厅",
+      "file": "scenes/capitol",
+      "note": "木桌、麦克风、记者席的剪影；不要出现真实人物或徽章。",
+      "reserved": true,
+      "usage": "标题 / 事件背景"
+    },
+    {
+      "id": "factory",
+      "group": "scenes",
+      "name": "晶圆厂",
+      "file": "scenes/factory",
+      "note": "无尘服、机械臂、晶圆反光；冷蓝绿调。",
+      "reserved": true,
+      "usage": "标题 / 事件背景"
+    },
+    {
+      "id": "pressroom",
+      "group": "scenes",
+      "name": "发布会后台",
+      "file": "scenes/pressroom",
+      "note": "幕布、监视器、空演讲台；预留 keynote 场景。",
+      "reserved": true,
       "usage": "标题 / 事件背景"
     },
     {
@@ -286,6 +449,7 @@ window.ART_SLOTS = {
       "name": "证据 01 · 皮衣",
       "file": "evidence/jacket",
       "note": "皮衣挂在椅背，办公室暗场，绿色屏幕光。3:2 横构图。",
+      "reserved": false,
       "usage": "标题页证据照片"
     },
     {
@@ -294,6 +458,7 @@ window.ART_SLOTS = {
       "name": "报纸配图 · 通用",
       "file": "news/photo",
       "note": "半调黑白新闻照；跌幅曲线 / 交易所 / 空椅子任选。",
+      "reserved": false,
       "usage": "结局报纸配图"
     }
   ]
