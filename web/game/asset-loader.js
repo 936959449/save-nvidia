@@ -2,7 +2,8 @@
    拯救英伟达 · v1.0 — 美术素材加载器
    - 读取 assets/manifest.js（无需 fetch，file:// 可直接打开）
    - 同名文件按 webp → png → jpg → jpeg → svg 依次解析
-   - 自动识别占位（svg）并给槽位打标
+   - preloadAll 提供真实完成进度；set 在资源未就绪时先显示 LOADING 占位
+   - 任何失败都会回落到 MISSING 占位，不出现破图
    ============================================================ */
 (function () {
   'use strict';
@@ -11,6 +12,7 @@
   if (!MANIFEST) { console.warn('ART_SLOTS manifest 未加载'); return; }
 
   var EXTS = ['webp', 'png', 'jpg', 'jpeg', 'svg'];
+  var PROBE_TIMEOUT = 30000;
   var SIZE = {
     characters: { w: 1200, h: 840, safe: 80 },
     scenes: { w: 1600, h: 900, safe: 80 },
@@ -18,8 +20,10 @@
     news: { w: 800, h: 600, safe: 40 }
   };
 
-  var cache = new Map();       // base -> Promise<{src, placeholder}>
+  var cache = new Map();       // base -> Promise<result>
+  var results = new Map();     // base -> resolved result
   var info = new Map();        // base -> slot info
+  var allBases = [];
 
   MANIFEST.characters.forEach(function (c) {
     c.states.forEach(function (s) {
@@ -36,36 +40,79 @@
       size: SIZE[m.group] || SIZE.characters, note: m.note
     });
   });
+  allBases = Array.from(info.keys());
 
-  function probe(src) {
-    return new Promise(function (resolve) {
-      var im = new Image();
-      im.onload = function () { resolve(true); };
-      im.onerror = function () { resolve(false); };
-      im.src = src;
+  var progress = { done: 0, total: allBases.length, current: '', ready: false, missing: 0 };
+  var progressListeners = [];
+  var runningPromise = null;
+
+  function snapshot() {
+    return { done: progress.done, total: progress.total, current: progress.current, ready: progress.ready, missing: progress.missing };
+  }
+  function emitProgress() {
+    var snap = snapshot();
+    progressListeners.forEach(function (cb) {
+      try { cb(snap); } catch (e) { /* 不让 UI 回调打断加载 */ }
     });
   }
 
-  function fallbackSvg(base) {
+  function sizeFor(base) {
+    var m = info.get(base);
+    return (m && m.size) || SIZE.characters;
+  }
+
+  function assetSvg(base, mode) {
+    var size = sizeFor(base);
     var label = base.split('/').pop();
-    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="840" viewBox="0 0 1200 840">' +
-      '<rect width="1200" height="840" fill="#20261F"/>' +
-      '<rect x="24" y="24" width="1152" height="792" fill="none" stroke="#A6E04C" stroke-width="3" stroke-dasharray="14 12"/>' +
-      '<text x="600" y="380" text-anchor="middle" font-family="Consolas,monospace" font-size="52" fill="#A6E04C">MISSING ASSET</text>' +
-      '<text x="600" y="450" text-anchor="middle" font-family="Consolas,monospace" font-size="30" fill="#F2ECDF">' + label + '</text>' +
-      '<text x="600" y="500" text-anchor="middle" font-family="Consolas,monospace" font-size="22" fill="#8B958A">assets/' + base + '.png</text>' +
+    var isMissing = mode === 'missing';
+    var color = isMissing ? '#D4574A' : '#A6E04C';
+    var title = isMissing ? 'MISSING ASSET' : 'LOADING ASSET';
+    var sub = isMissing ? 'assets/' + base + '.png' : '正在调取 · ' + base;
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + size.w + '" height="' + size.h + '" viewBox="0 0 ' + size.w + ' ' + size.h + '">' +
+      '<rect width="' + size.w + '" height="' + size.h + '" fill="#20261F"/>' +
+      '<rect x="24" y="24" width="' + (size.w - 48) + '" height="' + (size.h - 48) + '" fill="none" stroke="' + color + '" stroke-width="3" stroke-dasharray="14 12" opacity=".75"/>' +
+      '<text x="' + (size.w / 2) + '" y="' + (size.h * 0.43) + '" text-anchor="middle" font-family="Consolas,monospace" font-size="52" fill="' + color + '">' + title + '</text>' +
+      '<text x="' + (size.w / 2) + '" y="' + (size.h * 0.53) + '" text-anchor="middle" font-family="Consolas,monospace" font-size="28" fill="#F2ECDF">' + label + '</text>' +
+      '<text x="' + (size.w / 2) + '" y="' + (size.h * 0.59) + '" text-anchor="middle" font-family="Consolas,monospace" font-size="18" fill="#8B958A">' + sub + '</text>' +
       '</svg>';
     return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
   }
 
+  function probe(src) {
+    return new Promise(function (resolve) {
+      var done = false;
+      var timer = null;
+      var im = new Image();
+      function finish(ok) {
+        if (done) return;
+        done = true;
+        if (timer) window.clearTimeout(timer);
+        im.onload = null;
+        im.onerror = null;
+        resolve(ok);
+      }
+      timer = window.setTimeout(function () { finish(false); }, PROBE_TIMEOUT);
+      im.onload = function () { finish(true); };
+      im.onerror = function () { finish(false); };
+      im.src = src;
+    });
+  }
+
   function resolve(base) {
+    if (results.has(base)) return Promise.resolve(results.get(base));
     if (cache.has(base)) return cache.get(base);
     var p = (async function () {
       for (var i = 0; i < EXTS.length; i++) {
         var src = 'assets/' + base + '.' + EXTS[i];
-        if (await probe(src)) return { base: base, src: src, placeholder: EXTS[i] === 'svg' };
+        if (await probe(src)) {
+          var r = { base: base, src: src, placeholder: EXTS[i] === 'svg', missing: false };
+          results.set(base, r);
+          return r;
+        }
       }
-      return { base: base, src: fallbackSvg(base), placeholder: true, missing: true };
+      var fallback = { base: base, src: assetSvg(base, 'missing'), placeholder: true, missing: true };
+      results.set(base, fallback);
+      return fallback;
     })();
     cache.set(base, p);
     return p;
@@ -76,31 +123,95 @@
     return wrap ? wrap.querySelector('[data-slot-badge]') : null;
   }
 
+  function applyResult(img, base, r, token) {
+    if (!img || img.__assetToken !== token) return;
+    img.dataset.assetBase = base;
+    img.dataset.placeholder = r.placeholder ? '1' : '0';
+    img.classList.toggle('is-placeholder', !!r.placeholder);
+    img.classList.add('is-loading');
+    img.onload = function () {
+      if (img.__assetToken !== token) return;
+      img.dataset.assetState = 'ready';
+      img.classList.remove('is-loading');
+    };
+    img.onerror = function () {
+      if (img.__assetToken !== token) return;
+      img.dataset.assetState = 'missing';
+      img.dataset.placeholder = '1';
+      img.classList.remove('is-loading');
+      img.classList.add('is-placeholder');
+      img.src = assetSvg(base, 'missing');
+    };
+    img.src = r.src;
+    var badge = badgeFor(img);
+    if (badge) {
+      var meta = info.get(base);
+      badge.textContent = base + (meta ? ' · ' + meta.size.w + '×' + meta.size.h : '');
+      badge.classList.toggle('is-placeholder', !!r.placeholder);
+    }
+  }
+
   function set(img, base) {
     if (!img) return Promise.resolve();
+    var token = (img.__assetToken || 0) + 1;
+    img.__assetToken = token;
     img.dataset.slot = base;
-    return resolve(base).then(function (r) {
-      img.src = r.src;
-      img.dataset.placeholder = r.placeholder ? '1' : '0';
-      img.classList.toggle('is-placeholder', !!r.placeholder);
-      var badge = badgeFor(img);
-      if (badge) {
-        var meta = info.get(base);
-        badge.textContent = base + (meta ? ' · ' + meta.size.w + '×' + meta.size.h : '');
-        badge.classList.toggle('is-placeholder', !!r.placeholder);
+
+    // 已拿到的资源直接换；同一张已加载完的图不重复闪烁
+    if (results.has(base)) {
+      if (img.dataset.assetBase === base && img.dataset.assetState === 'ready') {
+        return Promise.resolve(results.get(base));
       }
+      applyResult(img, base, results.get(base), token);
+      return Promise.resolve(results.get(base));
+    }
+
+    img.dataset.assetBase = base;
+    img.dataset.assetState = 'loading';
+    img.dataset.placeholder = '1';
+    img.classList.add('is-loading');
+    img.classList.remove('is-placeholder');
+    img.src = assetSvg(base, 'loading');
+    var badge = badgeFor(img);
+    if (badge) {
+      badge.textContent = 'LOADING · ' + base;
+      badge.classList.remove('is-placeholder');
+    }
+    return resolve(base).then(function (r) {
+      if (img.__assetToken === token) applyResult(img, base, r, token);
+      return r;
     });
   }
 
-  function preloadAll() {
-    var list = [];
-    MANIFEST.characters.forEach(function (c) {
-      c.states.forEach(function (s) { list.push(s.file); });
+  function preloadAll(onProgress) {
+    if (typeof onProgress === 'function') {
+      progressListeners.push(onProgress);
+      onProgress(snapshot());
+    }
+    if (runningPromise) return runningPromise;
+    progress.done = 0;
+    progress.total = allBases.length;
+    progress.ready = false;
+    progress.missing = 0;
+    runningPromise = Promise.all(allBases.map(function (base) {
+      return resolve(base).then(function (r) {
+        progress.done += 1;
+        progress.current = base;
+        if (r.missing) progress.missing += 1;
+        emitProgress();
+        return r;
+      });
+    })).then(function () {
+      progress.ready = true;
+      progress.current = '';
+      emitProgress();
+      return snapshot();
     });
-    MANIFEST.misc.forEach(function (m) { list.push(m.file); });
-    return Promise.all(list.map(resolve));
+    return runningPromise;
   }
 
+  function getProgress() { return snapshot(); }
+  function isReady() { return progress.ready; }
   function countSlots() { return info.size; }
 
   window.Asset = {
@@ -109,6 +220,8 @@
     resolve: resolve,
     set: set,
     preloadAll: preloadAll,
+    getProgress: getProgress,
+    isReady: isReady,
     countSlots: countSlots,
     EXTS: EXTS
   };

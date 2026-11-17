@@ -35,7 +35,6 @@
   .asset-char-head b{font-family:var(--serif);font-size:18px}
   .asset-char-head span{font-family:var(--mono);font-size:9px;letter-spacing:.08em;color:var(--muted)}
   .asset-char-head em{font-style:normal;margin-left:auto;font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;color:var(--green-hi);border:1px solid rgba(118,185,0,.3);border-radius:5px;padding:2px 6px}
-  .asset-char-head em.is-reserved{color:#f0a897;border-color:rgba(212,87,74,.45)}
   .asset-states{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
   .asset-slot{position:relative;margin:0;background:rgba(0,0,0,.18);border:1px solid var(--line);border-radius:10px;padding:6px;min-width:0}
   .asset-slot .shot{position:relative;display:block;overflow:hidden;border-radius:6px;background:#161A15}
@@ -104,7 +103,7 @@
   <header class="asset-hero">
     <span class="kicker">ART SLOTS · REPLACEABLE ASSETS</span>
     <h1>美术资源<em>。</em></h1>
-    <p>这里是游戏需要的全部素材槽位。每个槽位是一张<b>固定画布</b>；其中 29 个已接入正式美术并生成 WebP，16 个为扩展预留（4 位新角色 × 3 表情 + 4 个事件场景），先用占位图留好。<b>人物每人 3 个表情状态</b>，黄仁勋不出场，只有皮衣、信件、GTC 剪影三种素材。替换时把同名 PNG 放进对应目录，再运行 <code>assets/tools/optimize_assets.py</code> 生成 WebP。</p>
+    <p>这里是游戏需要的全部素材槽位。每个槽位是一张<b>固定画布</b>；当前 45 个槽位均已接入正式美术并生成 WebP。<b>人物每人 3 个表情状态</b>，黄仁勋不出场，只有皮衣、信件、GTC 剪影三种素材。替换时把同名 PNG 放进对应目录，再运行 <code>assets/tools/optimize_assets.py</code> 生成 WebP。</p>
     <div class="asset-stats">
       <span>45 个槽位</span>
       <span>角色 <b>36</b>（11 人 × 3 表情 + 黄仁勋 3 素材）</span>
@@ -130,7 +129,7 @@
   <section class="asset-section" id="misc-section">
     <div class="asset-section-head"><h2>场景 / 证据 / 报纸</h2><span>SCENES · EVIDENCE · NEWS</span></div>
     <div class="misc-grid" id="misc"></div>
-    <p class="asset-note">场景用于标题背景与事件空镜；证据图用于首屏「EVIDENCE 01 · 皮衣」；报纸配图用于结局头版。29 个槽位已接入正式美术；另外 16 个为扩展预留（4 位新角色 × 3 表情 + 4 个事件场景），暂用占位图。替换同名 PNG 后重新生成 WebP 即可。</p>
+    <p class="asset-note">场景用于标题背景与事件空镜；证据图用于首屏「EVIDENCE 01 · 皮衣」；报纸配图用于结局头版。45 个槽位均已接入正式美术；替换同名 PNG 后重新生成 WebP 即可。</p>
   </section>
 
   <section class="guide">
@@ -154,7 +153,7 @@
     </table>
 
     <p><b>风格建议：</b>延续 v1.0 的「印刷档案」——半调网点、套色错位、纸边剪裁、档案标签。人物可以半身或胸像，视线默认看向镜头；三张表情只改眉眼/嘴角/肩线，不要改构图与光位，切换时才不会跳。</p>
-    <p><b>当前状态：</b>29 张正式美术已生成 WebP（约 4 MB，PNG 源文件 42 MB 保留作回退）；16 个预留槽位使用 SVG 占位。替换 PNG 后重跑 <code>assets/tools/optimize_assets.py</code> 即可更新 WebP。</p>
+    <p><b>当前状态：</b>45 个槽位均已生成 WebP（约 5.3 MB，PNG 源文件 61.9 MB 保留作回退）。替换 PNG 后重跑 <code>assets/tools/optimize_assets.py</code> 即可更新 WebP。</p>
   </section>
 
   <div class="footer-note">
@@ -207,7 +206,7 @@
   M.characters.forEach(function (c) {
     var wrap = document.createElement('div');
     wrap.className = 'asset-char';
-    wrap.innerHTML = '<div class="asset-char-head"><b>' + c.name + '</b><span>' + c.role + ' · ' + c.faction + '</span><em class="' + (c.reserved ? 'is-reserved' : '') + '">' + (c.reserved ? 'RESERVED' : c.id) + '</em></div>';
+    wrap.innerHTML = '<div class="asset-char-head"><b>' + c.name + '</b><span>' + c.role + ' · ' + c.faction + '</span><em>' + c.id + '</em></div>';
     var states = document.createElement('div');
     states.className = 'asset-states';
     c.states.forEach(function (s) {
@@ -222,7 +221,7 @@
   var miscRoot = $('misc');
   M.misc.forEach(function (m) {
     var size = SIZE[m.group] || SIZE.characters;
-    var sub = m.group + ' · ' + size.w + '×' + size.h + (m.reserved ? ' · 预留' : '');
+    var sub = m.group + ' · ' + size.w + '×' + size.h;
     miscRoot.appendChild(slotFigure(m.file, m.name, sub, m.group));
   });
 

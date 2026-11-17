@@ -50,30 +50,30 @@ CHARACTERS = [
     dict(id="huang", name="黄仁勋", role="前任 CEO（不出场）", faction="前任", color="#76B900",
          note="不画正脸。只交付三样东西：皮衣、信件、GTC 剪影。",
          states=[("jacket", "皮衣"), ("letter", "信件"), ("stage", "GTC 剪影")]),
-    # 以下为 100 张卡内容扩展预留槽位：先占位，接入正式美术后启用
+    # 以下为扩展角色槽位：已接入正式美术，后续扩展卡启用
     dict(id="analyst", name="马克·陈", role="做空机构分析师", faction="华尔街", color="#9B7EDE",
          note="细框眼镜、深色高领、平板；表情克制，像在读一份不想读的报告。",
-         states=[("neutral", "平静"), ("pressured", "施压"), ("pleased", "满意")], reserved=True),
+         states=[("neutral", "平静"), ("pressured", "施压"), ("pleased", "满意")]),
     dict(id="reporter", name="艾拉", role="科技记者", faction="媒体", color="#E28A5A",
          note="卷发、录音笔、媒体证；背景可带闪光灯。",
-         states=[("neutral", "平静"), ("pressured", "施压"), ("pleased", "满意")], reserved=True),
+         states=[("neutral", "平静"), ("pressured", "施压"), ("pleased", "满意")]),
     dict(id="engineer", name="阿伦", role="芯片架构师", faction="工程", color="#5FA8A0",
          note="连帽衫、格子衬衫、满桌草图；眼神疲惫但专注。",
-         states=[("neutral", "平静"), ("pressured", "施压"), ("pleased", "满意")], reserved=True),
+         states=[("neutral", "平静"), ("pressured", "施压"), ("pleased", "满意")]),
     dict(id="envoy", name="特使", role="白宫国安会", faction="白宫", color="#8A9BB5",
          note="深灰大衣、无标识公文包、耳麦；不递名片。",
-         states=[("neutral", "平静"), ("pressured", "施压"), ("pleased", "满意")], reserved=True),
+         states=[("neutral", "平静"), ("pressured", "施压"), ("pleased", "满意")]),
 ]
 
 SCENES = [
     dict(id="office", name="顶层办公室", note="黄昏落地窗、数据中心剪影、皮衣挂在椅背上（可空镜）。"),
     dict(id="boardroom", name="董事会会议室", note="长桌、绿台灯、空椅子；冷色调。"),
     dict(id="gtc", name="GTC 舞台", note="绿色背光、巨大屏幕、台下只留黑色人海。"),
-    # 事件背景预留
-    dict(id="datacenter", name="数据中心夜景", note="成排机柜、冷白指示灯、远处运维手电；16:9 空镜。", reserved=True),
-    dict(id="capitol", name="国会听证厅", note="木桌、麦克风、记者席的剪影；不要出现真实人物或徽章。", reserved=True),
-    dict(id="factory", name="晶圆厂", note="无尘服、机械臂、晶圆反光；冷蓝绿调。", reserved=True),
-    dict(id="pressroom", name="发布会后台", note="幕布、监视器、空演讲台；预留 keynote 场景。", reserved=True),
+    # 事件背景
+    dict(id="datacenter", name="数据中心夜景", note="成排机柜、冷白指示灯、远处运维手电；16:9 空镜。"),
+    dict(id="capitol", name="国会听证厅", note="木桌、麦克风、记者席的剪影；不要出现真实人物或徽章。"),
+    dict(id="factory", name="晶圆厂", note="无尘服、机械臂、晶圆反光；冷蓝绿调。"),
+    dict(id="pressroom", name="发布会后台", note="幕布、监视器、空演讲台；keynote 场景。"),
 ]
 EVIDENCE = [
     dict(id="jacket", name="证据 01 · 皮衣", note="皮衣挂在椅背，办公室暗场，绿色屏幕光。3:2 横构图。"),

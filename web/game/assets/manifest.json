@@ -269,7 +269,7 @@
       "faction": "华尔街",
       "color": "#9B7EDE",
       "note": "细框眼镜、深色高领、平板；表情克制，像在读一份不想读的报告。",
-      "reserved": true,
+      "reserved": false,
       "states": [
         {
           "state": "neutral",
@@ -298,7 +298,7 @@
       "faction": "媒体",
       "color": "#E28A5A",
       "note": "卷发、录音笔、媒体证；背景可带闪光灯。",
-      "reserved": true,
+      "reserved": false,
       "states": [
         {
           "state": "neutral",
@@ -327,7 +327,7 @@
       "faction": "工程",
       "color": "#5FA8A0",
       "note": "连帽衫、格子衬衫、满桌草图；眼神疲惫但专注。",
-      "reserved": true,
+      "reserved": false,
       "states": [
         {
           "state": "neutral",
@@ -356,7 +356,7 @@
       "faction": "白宫",
       "color": "#8A9BB5",
       "note": "深灰大衣、无标识公文包、耳麦；不递名片。",
-      "reserved": true,
+      "reserved": false,
       "states": [
         {
           "state": "neutral",
@@ -413,7 +413,7 @@
       "name": "数据中心夜景",
       "file": "scenes/datacenter",
       "note": "成排机柜、冷白指示灯、远处运维手电；16:9 空镜。",
-      "reserved": true,
+      "reserved": false,
       "usage": "标题 / 事件背景"
     },
     {
@@ -422,7 +422,7 @@
       "name": "国会听证厅",
       "file": "scenes/capitol",
       "note": "木桌、麦克风、记者席的剪影；不要出现真实人物或徽章。",
-      "reserved": true,
+      "reserved": false,
       "usage": "标题 / 事件背景"
     },
     {
@@ -431,7 +431,7 @@
       "name": "晶圆厂",
       "file": "scenes/factory",
       "note": "无尘服、机械臂、晶圆反光；冷蓝绿调。",
-      "reserved": true,
+      "reserved": false,
       "usage": "标题 / 事件背景"
     },
     {
@@ -440,7 +440,7 @@
       "name": "发布会后台",
       "file": "scenes/pressroom",
       "note": "幕布、监视器、空演讲台；预留 keynote 场景。",
-      "reserved": true,
+      "reserved": false,
       "usage": "标题 / 事件背景"
     },
     {

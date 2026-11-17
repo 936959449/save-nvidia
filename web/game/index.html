@@ -86,6 +86,40 @@
     </div>
   </section>
 
+  <!-- ================= LOADING ================= -->
+  <section class="screen screen-loading" id="screen-loading" aria-live="polite" aria-label="资源载入">
+    <div class="loading-bg" aria-hidden="true"></div>
+    <div class="loading-shell">
+      <header class="loading-top">
+        <div class="loading-brand"><span class="mark"></span>拯救英伟达 <small>ASSET BUNDLE</small></div>
+        <span class="loading-meta">v1.0 · 资源自检</span>
+      </header>
+
+      <div class="loading-main">
+        <span class="loading-kicker">ASSET TRANSFER · 资源载入</span>
+        <h1>正在调取档案。</h1>
+        <p class="loading-sub">首次加载会久一点。也可以跳过——游戏会先用占位素材顶上，资源抵达后自动替换。</p>
+        <div class="loading-track" id="loading-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <i id="loading-fill"></i>
+        </div>
+        <div class="loading-stats">
+          <span id="loading-count">0 / 45</span>
+          <span id="loading-percent">0%</span>
+        </div>
+        <div class="loading-file" id="loading-file">准备中…</div>
+        <div class="loading-actions">
+          <button class="loading-skip" id="loading-skip" type="button">跳过等待 <small>SKIP</small></button>
+          <span class="loading-hint">按 Esc 跳过</span>
+        </div>
+      </div>
+
+      <footer class="loading-foot">
+        <span>SECURE ASSET TRANSFER</span>
+        <span>肖像 · 场景 · 证据 · 报纸</span>
+      </footer>
+    </div>
+  </section>
+
   <!-- ================= INTRO ================= -->
   <section class="screen screen-intro" id="screen-intro" aria-live="polite" aria-label="开场演出">
     <div class="intro-bg" data-asset-wrap aria-hidden="true">

@@ -7,7 +7,7 @@
 | 组 | 尺寸 | 安全区 | 用途 | 状态 |
 |---|---|---|---|---|
 | 角色 characters | 1200 × 840（10:7） | 80 px | 卡片立绘、标题档案卡、人物档案 | neutral 平静 / pressured 施压 / pleased 满意 |
-| 场景 scenes | 1600 × 900（16:9） | 80 px | 标题背景、事件空镜 | office / boardroom / gtc + 预留 datacenter / capitol / factory / pressroom |
+| 场景 scenes | 1600 × 900（16:9） | 80 px | 标题背景、事件空镜 | office / boardroom / gtc / datacenter / capitol / factory / pressroom |
 | 证据 evidence | 1200 × 800（3:2） | 60 px | 标题页「EVIDENCE 01 · 皮衣」 | jacket |
 | 报纸 news | 800 × 600（4:3） | 40 px | 结局头版配图 | photo |
 
@@ -24,14 +24,14 @@ assets/news/photo.png / .webp
 ```
 
 - 加载器顺序：`webp → png → jpg → jpeg → svg`，找到即用。
-- 当前 **45 个槽位**：29 个已接入正式美术并生成 WebP（总计约 **4 MB**，相比 42 MB PNG 约 **9.6%**）；16 个为扩展预留（4 位新角色 × 3 表情 + 4 个事件场景），暂用 SVG 占位。
+- 当前 **45 个槽位**均已接入正式美术并生成 WebP（总计约 **5.3 MB**，相比 61.9 MB PNG 约 **8.5%**）。
 - PNG 保留为源文件与回退；页面优先请求 WebP；PNG 默认不提交（根目录 `.gitignore`）。
 - 替换后请运行 `python tools/optimize_assets.py` 更新 WebP；脚本只重转缺失或比 PNG 旧的图，需要 Python + Pillow。
 - `assets.html` 页面会显示每个槽位的实际文件、已替换状态和安全区预览。
 
-## 扩展预留槽位
+## 扩展角色 / 场景
 
-以下 16 个槽位已在 manifest 里标 `reserved: true`，先放占位 SVG；当前 100 张卡尚未使用，等正式美术接入后再启用。
+以下 16 个槽位已接入正式美术，但当前 100 张卡尚未使用，留给后续扩展卡：
 
 - 角色 4 位 × 3 表情：`analyst`（马克·陈 / 做空机构分析师）、`reporter`（艾拉 / 科技记者）、`engineer`（阿伦 / 芯片架构师）、`envoy`（特使 / 白宫国安会）。
 - 场景 4 个：`datacenter`（数据中心夜景）、`capitol`（国会听证厅）、`factory`（晶圆厂）、`pressroom`（发布会后台）。

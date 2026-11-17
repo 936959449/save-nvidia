@@ -37,7 +37,7 @@
   /* ---------------- DOM ---------------- */
   var el = {
     app: $('app'),
-    screens: { title: $('screen-title'), intro: $('screen-intro'), guide: $('screen-guide'), game: $('screen-game'), death: $('screen-death') },
+    screens: { title: $('screen-title'), loading: $('screen-loading'), intro: $('screen-intro'), guide: $('screen-guide'), game: $('screen-game'), death: $('screen-death') },
     meterBox: $('meters'), gaugeBox: $('gauges'), passives: $('passives'), log: $('log'),
     day: $('day-label'), quarter: $('quarter-label'), ticks: $('ticks'),
     card: $('card'), cardFile: $('card-file'), cardFac: $('card-fac'), cardFaction: $('card-faction'),
@@ -52,6 +52,8 @@
     introHint: $('intro-hint'), introStep: $('intro-step'),
     introProgress: $('intro-progress'), introStage: $('intro-stage'),
     guideStart: $('guide-start'), guideSkip: $('guide-skip'), guideMode: $('guide-mode'),
+    loadingSkip: $('loading-skip'), loadingFill: $('loading-fill'), loadingCount: $('loading-count'),
+    loadingPercent: $('loading-percent'), loadingFile: $('loading-file'), loadingBar: $('loading-bar'),
     coach: $('coach')
   };
   if (!el.card) return;
@@ -100,7 +102,7 @@
     setImg(el.deathPhoto, 'news/photo');
   }
 
-  /* 首屏只加载当前可见素材；全部角色/表情等开场播放时再后台预热（约 4 MB WebP） */
+  /* 首屏只加载当前可见素材；其余在资源载入阶段预热（约 5.3 MB WebP） */
   var assetsWarmed = false;
   function warmAssets() {
     if (assetsWarmed || !window.Asset) return;
@@ -115,6 +117,50 @@
     });
     el.app.dataset.screen = name;
     document.body.dataset.screen = name;
+  }
+
+  /* ---------------- 资源载入：开场前的进度门 ---------------- */
+  var loadingState = { active: false, done: false };
+
+  function updateLoading(p) {
+    if (!p) p = { done: 0, total: 45, current: '', ready: false };
+    var total = p.total || 0;
+    var done = p.done || 0;
+    var pct = total ? Math.round(done / total * 100) : 0;
+    if (el.loadingFill) el.loadingFill.style.width = pct + '%';
+    if (el.loadingCount) el.loadingCount.textContent = done + ' / ' + total;
+    if (el.loadingPercent) el.loadingPercent.textContent = pct + '%';
+    if (el.loadingBar) el.loadingBar.setAttribute('aria-valuenow', String(pct));
+    if (el.loadingFile) {
+      el.loadingFile.textContent = p.current ? p.current : (p.ready ? '资源就绪 · READY' : '准备中…');
+    }
+  }
+
+  function beginLoading() {
+    if (loadingState.active) return;
+    if (!window.Asset) { beginIntro(); return; }
+    if (window.Asset.isReady && window.Asset.isReady()) { beginIntro(); return; }
+    loadingState.active = true;
+    loadingState.done = false;
+    showScreen('loading');
+    updateLoading(window.Asset.getProgress ? window.Asset.getProgress() : null);
+    window.Asset.preloadAll(function (p) {
+      updateLoading(p);
+      if (p.ready) finishLoading();
+    });
+  }
+
+  function finishLoading() {
+    if (!loadingState.active) return;
+    loadingState.active = false;
+    loadingState.done = true;
+    window.setTimeout(function () { beginIntro(); }, 320);
+  }
+
+  function skipLoading() {
+    if (!loadingState.active) return;
+    loadingState.active = false;
+    beginIntro();
   }
 
   /* ---------------- 开场演出：交接文件 ---------------- */
@@ -779,7 +825,7 @@
   el.card.addEventListener('pointerup', onUp);
   el.card.addEventListener('pointercancel', onCancel);
 
-  $('start-btn').addEventListener('click', beginIntro);
+  $('start-btn').addEventListener('click', beginLoading);
   $('again-btn').addEventListener('click', startGame);
   $('restart-btn').addEventListener('click', function () { if (document.body.dataset.screen === 'game') startGame(); });
   $('home-btn').addEventListener('click', goTitle);
@@ -789,6 +835,7 @@
   $('guide-btn').addEventListener('click', function () { if (!S.busy && !S.dead) openGuide('game'); });
   if (el.guideStart) el.guideStart.addEventListener('click', closeGuide);
   if (el.guideSkip) el.guideSkip.addEventListener('click', closeGuide);
+  if (el.loadingSkip) el.loadingSkip.addEventListener('click', skipLoading);
 
   if (el.introSkip) {
     el.introSkip.addEventListener('click', function (e) { e.stopPropagation(); skipIntro(); });
@@ -812,7 +859,11 @@
   });
 
   window.addEventListener('keydown', function (e) {
-    if (document.body.dataset.screen === 'title' && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); beginIntro(); return; }
+    if (document.body.dataset.screen === 'title' && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); beginLoading(); return; }
+    if (document.body.dataset.screen === 'loading') {
+      if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') { e.preventDefault(); skipLoading(); }
+      return;
+    }
     if (document.body.dataset.screen === 'intro') {
       if (e.key === 'Escape' || e.key === 's' || e.key === 'S') { e.preventDefault(); skipIntro(); }
       else if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); advanceIntro(); }
@@ -852,5 +903,5 @@
   el.deathBest.textContent = S.best > 0 ? S.best + ' 天' : '—';
   showScreen('title');
   // 从入口页一键开局：game/index.html?start=1
-  if (/[?&]start=1(?:&|$)/.test(window.location.search)) beginIntro();
+  if (/[?&]start=1(?:&|$)/.test(window.location.search)) beginLoading();
 })();
