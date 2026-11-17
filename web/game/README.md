@@ -73,7 +73,7 @@ Reigns-like 竖屏卡牌游戏。双击 `index.html` 即可打开，无需启动
 - 把同名 PNG 放到 `assets/` 对应目录，然后运行 `python assets/tools/optimize_assets.py` 生成 WebP；加载器按 `webp → png → jpg → jpeg → svg` 查找。
 - 清单数据：`assets/manifest.json`（可读版本）与 `assets/manifest.js`（游戏用，file:// 直接打开也不受 fetch 限制）。
 - 占位图生成：`assets/tools/generate_placeholders.py`；压缩脚本：`assets/tools/optimize_assets.py`。
-- 当前 PNG 61.9 MB → WebP 5.3 MB（约 8.5%）；首屏只加载 3 张图，其余在资源载入阶段预热。
+- 当前 PNG 61.9 MB → WebP 2.2 MB（约 3.5%）；首屏只加载 3 张图，其余在资源载入阶段预热。
 
 ## 文件结构
 

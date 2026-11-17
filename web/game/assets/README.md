@@ -24,7 +24,7 @@ assets/news/photo.png / .webp
 ```
 
 - 加载器顺序：`webp → png → jpg → jpeg → svg`，找到即用。
-- 当前 **45 个槽位**均已接入正式美术并生成 WebP（总计约 **5.3 MB**，相比 61.9 MB PNG 约 **8.5%**）。
+- 当前 **45 个槽位**均已接入正式美术并生成 WebP（总计约 **2.2 MB**，相比 61.9 MB PNG 约 **3.5%**）。
 - PNG 保留为源文件与回退；页面优先请求 WebP；PNG 默认不提交（根目录 `.gitignore`）。
 - 替换后请运行 `python tools/optimize_assets.py` 更新 WebP；脚本只重转缺失或比 PNG 旧的图，需要 Python + Pillow。
 - `assets.html` 页面会显示每个槽位的实际文件、已替换状态和安全区预览。

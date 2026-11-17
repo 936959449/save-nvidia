@@ -5,7 +5,7 @@
 用法：
   python optimize_assets.py            # 只转换缺失或比 PNG 旧的 WebP
   python optimize_assets.py --force    # 全部重转
-  python optimize_assets.py --quality 88
+  python optimize_assets.py --quality 72
 说明：
   - 原 PNG 保留，作为回退与源文件；页面加载器优先 WebP。
   - 替换 PNG 后重新运行本脚本即可更新 WebP。
@@ -17,7 +17,7 @@ import time
 from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-QUALITY = 88
+QUALITY = 72
 
 
 def iter_pngs(root):
@@ -32,7 +32,7 @@ def iter_pngs(root):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--force", action="store_true", help="忽略时间戳，全部重转")
-    parser.add_argument("--quality", type=int, default=QUALITY, help="WebP 质量，默认 88")
+    parser.add_argument("--quality", type=int, default=QUALITY, help="WebP 质量，默认 72")
     args = parser.parse_args()
 
     files = sorted(iter_pngs(ROOT))
